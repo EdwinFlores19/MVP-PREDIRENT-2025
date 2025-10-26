@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrediRent - Estimador de Precio</title>
+    <link rel="stylesheet" href="styles/9-estimar-precio.css">
+</head>
+<body>
+    <header>
+        <h2>Estimador de Precios</h2>
+        <button class="close-btn" id="closeBtn" aria-label="Cerrar">&times;</button>
+    </header>
+
+    <main>
+        <!-- SELECTOR DE PROPIEDAD -->
+        <div class="property-selector">
+            <h3>📌 Selecciona una Propiedad</h3>
+            <div class="property-list" id="propertyList"></div>
+        </div>
+
+        <!-- INFO BOX -->
+        <div class="info-box" id="infoBox">
+            <p>💡 <strong>Tip:</strong> Selecciona una propiedad para ver el análisis detallado de precio basado en datos del mercado local.</p>
+        </div>
+
+        <!-- ANÁLISIS DE FACTORES -->
+        <div class="analysis-section hidden" id="analysisSection">
+            <h3 class="section-title">📊 Análisis de Factores</h3>
+            <div id="factorsList"></div>
+        </div>
+
+        <!-- RESULTADO DE PRECIO -->
+        <div class="price-result hidden" id="priceResult">
+            <div class="price-label">Precio Recomendado</div>
+            <div class="price-value" id="priceValue">S/ 0</div>
+            <div class="price-period">por mes</div>
+            <div class="price-range">
+                <strong>Rango Sugerido:</strong> S/ <span id="priceMin">0</span> - S/ <span id="priceMax">0</span>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE COMPARACIÓN -->
+        <div class="analysis-section hidden" id="comparisonSection">
+            <h3 class="section-title">📈 Comparación de Mercado</h3>
+            <div class="comparison-chart">
+                <div class="chart-bar" id="bar1" style="height: 60%;">
+                    <div class="chart-value" id="value1">S/ 0</div>
+                    <div class="chart-label">Tu Propiedad</div>
+                </div>
+                <div class="chart-bar" id="bar2" style="height: 100%; background: linear-gradient(to top, #90A4AE, #B0BEC5);">
+                    <div class="chart-value" id="value2">S/ 0</div>
+                    <div class="chart-label">Promedio Zona</div>
+                </div>
+                <div class="chart-bar" id="bar3" style="height: 80%; background: linear-gradient(to top, #81C784, #A5D6A7);">
+                    <div class="chart-value" id="value3">S/ 0</div>
+                    <div class="chart-label">Propiedad Premium</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECOMENDACIONES -->
+        <div class="recommendation-box hidden" id="recommendationBox">
+            <h4>💡 Recomendaciones para Maximizar Ingresos</h4>
+            <p id="recommendationText"></p>
+        </div>
+
+        <!-- TIPS -->
+        <div class="tips-section">
+            <h4>📋 Consejos para Aumentar el Valor de tu Propiedad</h4>
+            <div class="tip-item">Mantén la propiedad limpia y bien mantenida</div>
+            <div class="tip-item">Instala amenidades premium como WiFi de alta velocidad</div>
+            <div class="tip-item">Toma fotos de calidad profesional para el anuncio</div>
+            <div class="tip-item">Localízate en zona con buena accesibilidad</div>
+            <div class="tip-item">Ofrece servicios adicionales: limpieza, breakfast, etc</div>
+            <div class="tip-item">Mantén buenas reseñas y puntuación de huéspedes</div>
+        </div>
+    </main>
+
+    <footer>
+        <button class="btn btn-secondary" id="shareBtn">Compartir</button>
+        <button class="btn btn-primary" id="publishBtn">Publicar a este Precio</button>
+    </footer>
+
+    <script src="scripts/9-estimar-precio.js"></script>
+</body>
+</html>

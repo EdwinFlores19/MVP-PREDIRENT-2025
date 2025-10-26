@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comunidad de Propietarios - PrediRent</title>
+    <link rel="stylesheet" href="styles/8-comunidad-propietarios.css">
+  </head>
+  <body>
+    <!-- Header fijo -->
+    <header>
+      <button class="back-button" aria-label="Volver">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <h2>Comunidad de Propietarios</h2>
+    </header>
+
+    <!-- Barra de búsqueda y filtros -->
+    <div class="search-controls">
+      <div class="search-wrapper">
+        <svg
+          class="search-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle cx="11" cy="11" r="8" stroke="#777777" stroke-width="2" />
+          <path
+            d="M21 21L16.65 16.65"
+            stroke="#777777"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+        <input
+          type="search"
+          class="search-input"
+          id="searchInput"
+          placeholder="Buscar por nombre o distrito..."
+          autocomplete="off"
+        />
+      </div>
+      <button class="filter-button" aria-label="Filtros">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 6H20M7 12H17M10 18H14"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contenido principal -->
+    <main>
+      <!-- Tarjetas de contacto -->
+      <article class="contact-card" data-name="edwin r." data-district="surco">
+        <div class="avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+            />
+          </svg>
+        </div>
+        <div class="contact-content">
+          <div class="contact-header">
+            <h4 class="contact-name">Edwin R.</h4>
+          </div>
+          <p class="contact-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+              />
+            </svg>
+            Propietario en Surco
+          </p>
+          <div class="tags">
+            <span class="tag">Mantenimiento</span>
+            <span class="tag">Legal</span>
+            <span class="tag">Optimización de Precios</span>
+          </div>
+          <button class="contact-button" onclick="openModal('Edwin R.')">
+            Contactar
+          </button>
+        </div>
+      </article>
+
+      <article
+        class="contact-card"
+        data-name="maría l."
+        data-district="miraflores"
+      >
+        <div class="avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+            />
+          </svg>
+        </div>
+        <div class="contact-content">
+          <div class="contact-header">
+            <h4 class="contact-name">María L.</h4>
+          </div>
+          <p class="contact-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+              />
+            </svg>
+            Propietaria en Miraflores
+          </p>
+          <div class="tags">
+            <span class="tag">Inquilinos</span>
+            <span class="tag">Contratos</span>
+            <span class="tag">Seguros</span>
+          </div>
+          <button class="contact-button" onclick="openModal('María L.')">
+            Contactar
+          </button>
+        </div>
+      </article>
+
+      <article
+        class="contact-card"
+        data-name="carlos m."
+        data-district="san isidro"
+      >
+        <div class="avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+            />
+          </svg>
+        </div>
+        <div class="contact-content">
+          <div class="contact-header">
+            <h4 class="contact-name">Carlos M.</h4>
+          </div>
+          <p class="contact-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+              />
+            </svg>
+            Propietario en San Isidro
+          </p>
+          <div class="tags">
+            <span class="tag">Inversiones</span>
+            <span class="tag">Mercado</span>
+            <span class="tag">Rentabilidad</span>
+          </div>
+          <button class="contact-button" onclick="openModal('Carlos M.')">
+            Contactar
+          </button>
+        </div>
+      </article>
+
+      <article class="contact-card" data-name="ana p." data-district="surco">
+        <div class="avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+            />
+          </svg>
+        </div>
+        <div class="contact-content">
+          <div class="contact-header">
+            <h4 class="contact-name">Ana P.</h4>
+          </div>
+          <p class="contact-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+              />
+            </svg>
+            Propietaria en Surco
+          </p>
+          <div class="tags">
+            <span class="tag">Renovaciones</span>
+            <span class="tag">Decoración</span>
+            <span class="tag">Plusvalía</span>
+          </div>
+          <button class="contact-button" onclick="openModal('Ana P.')">
+            Contactar
+          </button>
+        </div>
+      </article>
+
+      <article
+        class="contact-card"
+        data-name="jorge s."
+        data-district="la molina"
+      >
+        <div class="avatar">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+            />
+          </svg>
+        </div>
+        <div class="contact-content">
+          <div class="contact-header">
+            <h4 class="contact-name">Jorge S.</h4>
+          </div>
+          <p class="contact-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+              />
+            </svg>
+            Propietario en La Molina
+          </p>
+          <div class="tags">
+            <span class="tag">Impuestos</span>
+            <span class="tag">Administración</span>
+            <span class="tag">Documentación</span>
+          </div>
+          <button class="contact-button" onclick="openModal('Jorge S.')">
+            Contactar
+          </button>
+        </div>
+      </article>
+
+      <!-- Estado vacío -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#E0E0E0" stroke-width="2" />
+            <path
+              d="M12 8V12M12 16H12.01"
+              stroke="#E0E0E0"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <p>No se encontraron propietarios.<br />¡Intenta con otra búsqueda!</p>
+      </div>
+    </main>
+
+    <!-- Modal de contacto -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Enviar mensaje a</h3>
+          <button
+            class="close-button"
+            onclick="closeModal()"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </div>
+        <form class="modal-form" id="contactForm" onsubmit="sendMessage(event)">
+          <div class="form-group">
+            <textarea
+              class="message-textarea"
+              id="messageText"
+              placeholder="Escribe tu consulta o consejo aquí..."
+              maxlength="500"
+              required
+            ></textarea>
+            <div class="char-counter"><span id="charCount">0</span>/500</div>
+          </div>
+          <p class="help-text">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              style="flex-shrink: 0; margin-top: 2px"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"
+              />
+            </svg>
+            Este mensaje se enviará de forma segura a través de PrediRent.
+          </p>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary">Enviar Mensaje</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Mensaje de éxito -->
+    <div class="success-message" id="successMessage">
+      ✓ Mensaje enviado correctamente
+    </div>
+
+    <script src="scripts/8-comunidad-propietarios.js"></script>
+  </body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrediRent - Generar Reportes</title>
+  <link rel="stylesheet" href="styles/5-generar-reportes.css">
+</head>
+<body>
+  <!-- Header Fijo -->
+  <header>
+    <button class="back-button" aria-label="Volver">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <h2>Generar Reportes</h2>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main>
+    <!-- Sección de Configuración del Reporte -->
+    <section class="report-config fade-in">
+      <!-- Paso 1: Seleccionar Propiedades -->
+      <div class="config-step">
+        <h3>1. Selecciona la propiedad</h3>
+        <ul class="property-list" id="propertyList">
+          <li class="property-item" data-property="miraflores">
+            <div class="property-info">
+              <div class="property-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <span class="property-name">Apartamento en Miraflores</span>
+            </div>
+            <div class="custom-checkbox"></div>
+          </li>
+          <li class="property-item" data-property="sanisidro">
+            <div class="property-info">
+              <div class="property-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <span class="property-name">Casa en San Isidro</span>
+            </div>
+            <div class="custom-checkbox"></div>
+          </li>
+          <li class="property-item" data-property="barranco">
+            <div class="property-info">
+              <div class="property-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <span class="property-name">Departamento en Barranco</span>
+            </div>
+            <div class="custom-checkbox"></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Paso 2: Seleccionar Período -->
+      <div class="config-step">
+        <h3>2. Elige el período</h3>
+        <div class="period-selector">
+          <div class="select-wrapper">
+            <label for="monthSelect">Mes</label>
+            <select id="monthSelect">
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9" selected>Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div class="select-wrapper">
+            <label for="yearSelect">Año</label>
+            <select id="yearSelect">
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025" selected>2025</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Personalizar Contenido -->
+      <div class="config-step">
+        <h3>3. ¿Qué deseas incluir?</h3>
+        <ul class="content-options" id="contentOptions">
+          <li class="content-item" data-content="financiero">
+            <div class="custom-checkbox"></div>
+            <label>Resumen Financiero (Ingresos y gastos)</label>
+          </li>
+          <li class="content-item" data-content="ocupacion">
+            <div class="custom-checkbox"></div>
+            <label>Estado de Ocupación (Días alquilado vs. vacante)</label>
+          </li>
+          <li class="content-item" data-content="regulaciones">
+            <div class="custom-checkbox"></div>
+            <label>Actualizaciones de Regulaciones Gubernamentales para la zona</label>
+          </li>
+          <li class="content-item" data-content="mantenimiento">
+            <div class="custom-checkbox"></div>
+            <label>Historial de Mantenimiento</label>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Historial de Reportes -->
+    <section class="report-history fade-in">
+      <h3>Reportes Anteriores</h3>
+      <ul class="history-list">
+        <li class="history-item">
+          <div class="pdf-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B54" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Reporte Financiero - Sep 2025</div>
+            <div class="history-date">Generado: 30 Sep 2025</div>
+          </div>
+          <button class="download-btn">Descargar</button>
+        </li>
+        <li class="history-item">
+          <div class="pdf-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B54" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Reporte Completo - Ago 2025</div>
+            <div class="history-date">Generado: 31 Ago 2025</div>
+          </div>
+          <button class="download-btn">Descargar</button>
+        </li>
+        <li class="history-item">
+          <div class="pdf-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7B54" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Reporte de Ocupación - Jul 2025</div>
+            <div class="history-date">Generado: 31 Jul 2025</div>
+          </div>
+          <button class="download-btn">Descargar</button>
+        </li>
+      </ul>
+      <a href="#" class="view-all">Ver todos los reportes</a>
+    </section>
+  </main>
+
+  <!-- Botón CTA Fijo -->
+  <div class="cta-container">
+    <button class="cta-button" id="generateBtn">Generar Reporte PDF</button>
+  </div>
+
+  <!-- Modal de Éxito -->
+  <div class="success-modal" id="successModal">
+    <div class="success-content">
+      <div class="success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h4 class="success-title">¡Tu reporte está listo!</h4>
+      <p class="success-message">El documento PDF ha sido generado exitosamente y está listo para descargar.</p>
+      <button class="download-button" id="downloadBtn">Descargar Ahora</button>
+    </div>
+  </div>
+
+  <script src="scripts/5-generar-reportes.js"></script>
+</body>
+</html>

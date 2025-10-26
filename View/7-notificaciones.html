@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notificaciones - PrediRent</title>
+    <link rel="stylesheet" href="styles/7-notificaciones.css">
+  </head>
+  <body>
+    <!-- ===== POPUP DE ALERTA CONTEXTUAL ===== -->
+    <div class="popup-overlay" id="popupOverlay">
+      <div class="alert-modal">
+        <div class="alert-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 4.18L19 7.82V16.18L12 19.82L5 16.18V7.82L12 4.18ZM12 8V13M12 15H12.01"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <h3>¡Alerta de Mercado!</h3>
+        <p>
+          Debido al evento 'Festival Gastronómico', la demanda de alquileres en
+          Surco ha aumentado. Te recomendamos ajustar el precio de tu propiedad.
+        </p>
+        <div class="alert-actions">
+          <button class="btn-alert-primary" onclick="handleOpportunity()">
+            Ver Oportunidad
+          </button>
+          <button class="btn-alert-secondary" onclick="closePopup()">
+            Más tarde
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VISTA DE NOTIFICACIONES ===== -->
+    <header>
+      <div class="header-top">
+        <button class="back-button" onclick="goBack()" aria-label="Volver">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <h2>Notificaciones</h2>
+      </div>
+      <div class="filter-tabs">
+        <button
+          class="tab-button active"
+          data-filter="todas"
+          onclick="filterNotifications('todas')"
+        >
+          Todas
+        </button>
+        <button
+          class="tab-button"
+          data-filter="alertas"
+          onclick="filterNotifications('alertas')"
+        >
+          Alertas
+        </button>
+        <button
+          class="tab-button"
+          data-filter="mensajes"
+          onclick="filterNotifications('mensajes')"
+        >
+          Mensajes
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="notifications-list" id="notificationsList">
+        <!-- Notificación 1: Alerta -->
+        <div
+          class="notification-item unread"
+          data-type="alertas"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Alerta de Precios en Surco</div>
+            <p class="notification-message">
+              La demanda ha aumentado un 15% en tu zona. Es un buen momento para
+              ajustar tus precios y maximizar tus ingresos.
+            </p>
+            <small class="notification-time">Hace 5 minutos</small>
+          </div>
+          <span class="unread-badge"></span>
+        </div>
+
+        <!-- Notificación 2: Mensaje -->
+        <div
+          class="notification-item unread"
+          data-type="mensajes"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon message">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Nuevo mensaje de María L.</div>
+            <p class="notification-message">
+              Hola, vi tu propiedad en Surco y me gustaría conocer más detalles
+              sobre las condiciones de mantenimiento. ¿Podríamos hablar?
+            </p>
+            <small class="notification-time">Hace 1 hora</small>
+          </div>
+          <span class="unread-badge"></span>
+        </div>
+
+        <!-- Notificación 3: Info -->
+        <div
+          class="notification-item"
+          data-type="alertas"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon info">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Actualización de la plataforma</div>
+            <p class="notification-message">
+              Hemos agregado nuevas funciones para mejorar tu experiencia.
+              Explora el panel de análisis de mercado renovado.
+            </p>
+            <small class="notification-time">Hace 2 horas</small>
+          </div>
+        </div>
+
+        <!-- Notificación 4: Alerta -->
+        <div
+          class="notification-item"
+          data-type="alertas"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Recomendación de optimización</div>
+            <p class="notification-message">
+              Tus propiedades en Miraflores tienen un 8% menos de visitas que el
+              promedio. Te sugerimos actualizar las fotos y la descripción para
+              atraer más inquilinos potenciales.
+            </p>
+            <small class="notification-time">Hace 5 horas</small>
+          </div>
+        </div>
+
+        <!-- Notificación 5: Mensaje -->
+        <div
+          class="notification-item"
+          data-type="mensajes"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon message">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Respuesta de Carlos M.</div>
+            <p class="notification-message">
+              Gracias por tu mensaje. Te comparto mi experiencia con los
+              contratos de arrendamiento y cómo manejo la documentación legal.
+            </p>
+            <small class="notification-time">Ayer</small>
+          </div>
+        </div>
+
+        <!-- Notificación 6: Alerta -->
+        <div
+          class="notification-item"
+          data-type="alertas"
+          onclick="toggleNotification(this)"
+        >
+          <div class="notification-icon alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path
+                d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
+              />
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">Nueva oportunidad detectada</div>
+            <p class="notification-message">
+              Se ha identificado un incremento en búsquedas de propiedades de 2
+              dormitorios en San Isidro. Considera resaltar tus propiedades
+              similares.
+            </p>
+            <small class="notification-time">Hace 2 días</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="#999">
+            <path
+              d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
+            />
+            <line
+              x1="2"
+              y1="2"
+              x2="22"
+              y2="22"
+              stroke="#999"
+              stroke-width="2"
+            />
+          </svg>
+        </div>
+        <h4>Todo está al día</h4>
+        <p>No tienes notificaciones nuevas por ahora.</p>
+      </div>
+    </main>
+
+    <!-- Botón flotante para demo del popup -->
+    <button
+      class="floating-button"
+      onclick="showPopup()"
+      title="Mostrar alerta de ejemplo"
+    >
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path
+          d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
+        />
+      </svg>
+    </button>
+
+    <script src="scripts/7-notificaciones.js"></script>
+  </body>
+</html>

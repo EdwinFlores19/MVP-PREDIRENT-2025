@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrediRent - Registra tu Propiedad</title>
+    <link rel="stylesheet" href="styles/4-registrar-propiedad.css">
+</head>
+<body>
+    <header>
+        <h2>Registra tu Propiedad</h2>
+        <button class="close-btn" id="closeBtn" aria-label="Cerrar">&times;</button>
+    </header>
+
+    <div class="progress-section">
+        <div class="progress-info" id="progressText">Paso 1 de 5</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <main>
+        <div class="success-message" id="successMessage">
+            ✓ Propiedad registrada exitosamente
+        </div>
+
+        <form id="propertyForm">
+
+            <!-- PASO 1: TIPO DE ESPACIO Y ALOJAMIENTO -->
+            <fieldset class="active" data-step="1">
+                <h3 class="step-title">Tipo de Espacio</h3>
+                <p class="step-subtitle">¿Cuál de estas opciones describe mejor tu espacio?</p>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">Tipo de Propiedad</label>
+                    <div class="option-grid" id="propertyTypes">
+                        <div class="option-card" data-value="casa">
+                            <div class="option-icon">🏠</div>
+                            <div class="option-label">Casa</div>
+                        </div>
+                        <div class="option-card" data-value="departamento">
+                            <div class="option-icon">🏢</div>
+                            <div class="option-label">Departamento</div>
+                        </div>
+                        <div class="option-card" data-value="oficina">
+                            <div class="option-icon">🏬</div>
+                            <div class="option-label">Oficina</div>
+                        </div>
+                        <div class="option-card" data-value="estudio">
+                            <div class="option-icon">🎨</div>
+                            <div class="option-label">Estudio</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error-propertyType"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿De qué tipo de alojamiento dispondrán los huéspedes?</label>
+                    <div class="radio-grid">
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-entire" value="entire" required>
+                            <label for="acc-entire">Un alojamiento completo</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-room" value="room" required>
+                            <label for="acc-room">Una habitación privada</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-shared" value="shared" required>
+                            <label for="acc-shared">Una habitación compartida</label>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error-accommodation"></div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 2: DATOS BÁSICOS Y COMODIDADES -->
+            <fieldset data-step="2">
+                <h3 class="step-title">Datos Básicos</h3>
+                <p class="step-subtitle">Agrega algunos datos básicos sobre tu espacio.</p>
+
+                <div class="field-group">
+                    <label>Metraje (m²)</label>
+                    <input type="number" id="metrageInput" placeholder="Ej: 50" min="5" max="10000" required>
+                    <div class="error-message" id="error-metrage"></div>
+                </div>
+
+                <div class="field-group">
+                    <label>Número de Habitaciones y Baños</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 8px; display: block;">Habitaciones</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-action="decrease" data-type="bedrooms">−</button>
+                                <div class="stepper-value" id="bedroomValue">1</div>
+                                <button type="button" class="stepper-btn" data-action="increase" data-type="bedrooms">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 8px; display: block;">Baños</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-action="decrease" data-type="bathrooms">−</button>
+                                <div class="stepper-value" id="bathroomValue">1</div>
+                                <button type="button" class="stepper-btn" data-action="increase" data-type="bathrooms">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Qué comodidades tienes?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-wifi" value="wifi">
+                            <label for="amenity-wifi">WiFi</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-parking" value="parking">
+                            <label for="amenity-parking">Estacionamiento</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-ac" value="ac">
+                            <label for="amenity-ac">Aire Acondicionado</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-furnished" value="furnished">
+                            <label for="amenity-furnished">Amoblado</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-kitchen" value="kitchen">
+                            <label for="amenity-kitchen">Cocina Equipada</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-washer" value="washer">
+                            <label for="amenity-washer">Lavadora</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-tv" value="tv">
+                            <label for="amenity-tv">Televisor</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-gym" value="gym">
+                            <label for="amenity-gym">Gimnasio</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Tienes alguna comodidad destacada?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-views" value="views">
+                            <label for="highlight-views">Vistas Panorámicas</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-pool" value="pool">
+                            <label for="highlight-pool">Piscina</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-garden" value="garden">
+                            <label for="highlight-garden">Jardín</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-terrace" value="terrace">
+                            <label for="highlight-terrace">Terraza</label>
+                        </div>
+                    </div>
+                    <p class="highlight-count"><span id="highlightCount">0</span>/2 seleccionados</p>
+                    <div class="error-message" id="error-highlights"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Cuentas con elementos de seguridad?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-lock" value="lock">
+                            <label for="security-lock">Cerradura Segura</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-alarm" value="alarm">
+                            <label for="security-alarm">Sistema de Alarma</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-camera" value="camera">
+                            <label for="security-camera">Cámaras de Seguridad</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-guard" value="guard">
+                            <label for="security-guard">Vigilancia 24/7</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 3: DESCRIPCIÓN Y ASPECTOS DESTACADOS -->
+            <fieldset data-step="3">
+                <h3 class="step-title">Descripción del Espacio</h3>
+                <p class="step-subtitle">Ahora describamos tu espacio.</p>
+
+                <div class="field-group">
+                    <label for="titleInput">Título del Anuncio</label>
+                    <input type="text" id="titleInput" placeholder="Ej: Departamento moderno en Miraflores" required>
+                    <div class="error-message" id="error-title"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="descriptionInput">Descripción Detallada</label>
+                    <textarea id="descriptionInput" placeholder="Describe tu propiedad, ambiente, servicios cercanos..." required></textarea>
+                    <div class="error-message" id="error-description"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">Selecciona hasta 2 aspectos destacados</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-size" value="size" class="aspect-checkbox">
+                            <label for="aspect-size">Tamaño Espacioso</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-light" value="light" class="aspect-checkbox">
+                            <label for="aspect-light">Mucha Luz Natural</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-quiet" value="quiet" class="aspect-checkbox">
+                            <label for="aspect-quiet">Zona Tranquila</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-location" value="location" class="aspect-checkbox">
+                            <label for="aspect-location">Ubicación Céntrica</label>
+                        </div>
+                    </div>
+                    <p class="highlight-count"><span id="aspectCount">0</span>/2 seleccionados</p>
+                    <div class="error-message" id="error-aspects"></div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 4: UBICACIÓN -->
+            <fieldset data-step="4">
+                <h3 class="step-title">¿Dónde se encuentra?</h3>
+                <p class="step-subtitle">Agrega la ubicación exacta de tu propiedad.</p>
+
+                <div class="field-group">
+                    <label for="districtInput">Distrito</label>
+                    <input type="text" id="districtInput" placeholder="Ej: Miraflores" required>
+                    <div class="error-message" id="error-district"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="addressInput">Dirección Completa</label>
+                    <input type="text" id="addressInput" placeholder="Calle, número y detalles" required>
+                    <div class="error-message" id="error-address"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="postalInput">Código Postal</label>
+                    <input type="text" id="postalInput" placeholder="Código postal" required>
+                    <div class="error-message" id="error-postal"></div>
+                </div>
+
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <div>
+                        <div class="map-icon">📍</div>
+                        <div>Toca para fijar la ubicación en el mapa</div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 5: VERIFICACIÓN Y RESUMEN -->
+            <fieldset data-step="5">
+                <h3 class="step-title">Verifica tu Información</h3>
+                <p class="step-subtitle">Revisa los datos antes de publicar.</p>
+
+                <div id="summaryContent" style="background: white; border-radius: 12px; padding: 16px; border: 1px solid var(--borde-suave);">
+                    <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
+
+                <div class="suggestion-box">
+                    <strong>¡Perfecto!</strong>
+                    Con esta información, PrediRent puede sugerirte un precio óptimo y ayudarte a atraer más huéspedes.
+                </div>
+            </fieldset>
+
+        </form>
+    </main>
+
+    <footer>
+        <button type="button" class="nav-btn btn-back" id="backBtn">Atrás</button>
+        <button type="button" class="nav-btn btn-next" id="nextBtn">Siguiente</button>
+    </footer>
+
+    <script src="scripts/4-registrar-propiedad.js"></script>
+</body>
+</html>
