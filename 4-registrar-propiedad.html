@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrediRent - Registra tu Propiedad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --naranja-principal: #FF7B54;
+            --naranja-claro: #FFB26B;
+            --verde-confirmacion: #93C47D;
+            --verde-oscuro: #6B8E23;
+            --fondo-claro: #F9F9F9;
+            --texto-principal: #333333;
+            --texto-secundario: #777777;
+            --borde-suave: #E0E0E0;
+            --rojo-error: #E74C3C;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--fondo-claro);
+            color: var(--texto-principal);
+            overflow-x: hidden;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--texto-secundario);
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .close-btn:active {
+            color: var(--naranja-principal);
+        }
+
+        .progress-section {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            padding: 12px 16px;
+            z-index: 99;
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        .progress-info {
+            font-size: 12px;
+            color: var(--texto-secundario);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: var(--borde-suave);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--naranja-principal);
+            transition: width 0.4s ease;
+        }
+
+        main {
+            margin-top: 120px;
+            margin-bottom: 100px;
+            padding: 16px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        fieldset {
+            border: none;
+            padding: 0;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        fieldset.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--texto-principal);
+        }
+
+        .step-subtitle {
+            font-size: 13px;
+            color: var(--texto-secundario);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            border: 1px solid var(--borde-suave);
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--naranja-principal);
+            box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.1);
+        }
+
+        input.error,
+        select.error,
+        textarea.error {
+            border-color: var(--rojo-error);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .error-message {
+            display: none;
+            font-size: 12px;
+            color: var(--rojo-error);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* OPTION CARDS - Para tipo de espacio */
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-card {
+            border: 2px solid var(--borde-suave);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .option-card:active {
+            transform: scale(0.98);
+        }
+
+        .option-card.selected {
+            border-color: var(--naranja-principal);
+            background-color: rgba(255, 123, 84, 0.05);
+        }
+
+        .option-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .option-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--texto-principal);
+        }
+
+        /* CHECKBOX GRID */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--borde-suave);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .checkbox-item:active {
+            background-color: var(--fondo-claro);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: var(--naranja-principal);
+            flex-shrink: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        /* RADIO GRID */
+        .radio-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--borde-suave);
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: var(--naranja-principal);
+            flex-shrink: 0;
+        }
+
+        .radio-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        /* STEPPER */
+        .stepper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--borde-suave);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 120px;
+        }
+
+        .stepper-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: white;
+            color: var(--naranja-principal);
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+
+        .stepper-btn:active {
+            background-color: var(--fondo-claro);
+        }
+
+        .stepper-value {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            color: var(--texto-principal);
+            font-size: 16px;
+        }
+
+        /* MAP PLACEHOLDER */
+        .map-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border: 2px dashed var(--borde-suave);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0;
+            color: var(--texto-secundario);
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .map-placeholder:active {
+            background: linear-gradient(135deg, #C8E6C9, #A5D6A7);
+        }
+
+        .map-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        /* SUGGESTION BOX */
+        .suggestion-box {
+            background: linear-gradient(135deg, var(--verde-confirmacion), #A8D977);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            color: white;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(147, 196, 125, 0.2);
+        }
+
+        .suggestion-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        /* FOOTER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            padding: 12px 16px;
+            border-top: 1px solid var(--borde-suave);
+            display: flex;
+            gap: 12px;
+            z-index: 50;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--naranja-principal);
+            border: 2px solid var(--naranja-principal);
+            display: none;
+        }
+
+        .btn-back.show {
+            display: block;
+            flex: 0.4;
+        }
+
+        .btn-next {
+            background: var(--naranja-principal);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-next:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            background: var(--verde-confirmacion);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 16px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight-count {
+            font-size: 12px;
+            color: var(--texto-secundario);
+            margin-top: 8px;
+        }
+
+        .grid-3-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Registra tu Propiedad</h2>
+        <button class="close-btn" id="closeBtn" aria-label="Cerrar">&times;</button>
+    </header>
+
+    <div class="progress-section">
+        <div class="progress-info" id="progressText">Paso 1 de 5</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <main>
+        <div class="success-message" id="successMessage">
+            ✓ Propiedad registrada exitosamente
+        </div>
+
+        <form id="propertyForm">
+
+            <!-- PASO 1: TIPO DE ESPACIO Y ALOJAMIENTO -->
+            <fieldset class="active" data-step="1">
+                <h3 class="step-title">Tipo de Espacio</h3>
+                <p class="step-subtitle">¿Cuál de estas opciones describe mejor tu espacio?</p>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">Tipo de Propiedad</label>
+                    <div class="option-grid" id="propertyTypes">
+                        <div class="option-card" data-value="casa">
+                            <div class="option-icon">🏠</div>
+                            <div class="option-label">Casa</div>
+                        </div>
+                        <div class="option-card" data-value="departamento">
+                            <div class="option-icon">🏢</div>
+                            <div class="option-label">Departamento</div>
+                        </div>
+                        <div class="option-card" data-value="oficina">
+                            <div class="option-icon">🏬</div>
+                            <div class="option-label">Oficina</div>
+                        </div>
+                        <div class="option-card" data-value="estudio">
+                            <div class="option-icon">🎨</div>
+                            <div class="option-label">Estudio</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error-propertyType"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿De qué tipo de alojamiento dispondrán los huéspedes?</label>
+                    <div class="radio-grid">
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-entire" value="entire" required>
+                            <label for="acc-entire">Un alojamiento completo</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-room" value="room" required>
+                            <label for="acc-room">Una habitación privada</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="accommodation" id="acc-shared" value="shared" required>
+                            <label for="acc-shared">Una habitación compartida</label>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error-accommodation"></div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 2: DATOS BÁSICOS Y COMODIDADES -->
+            <fieldset data-step="2">
+                <h3 class="step-title">Datos Básicos</h3>
+                <p class="step-subtitle">Agrega algunos datos básicos sobre tu espacio.</p>
+
+                <div class="field-group">
+                    <label>Metraje (m²)</label>
+                    <input type="number" id="metrageInput" placeholder="Ej: 50" min="5" max="10000" required>
+                    <div class="error-message" id="error-metrage"></div>
+                </div>
+
+                <div class="field-group">
+                    <label>Número de Habitaciones y Baños</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 8px; display: block;">Habitaciones</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-action="decrease" data-type="bedrooms">−</button>
+                                <div class="stepper-value" id="bedroomValue">1</div>
+                                <button type="button" class="stepper-btn" data-action="increase" data-type="bedrooms">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 8px; display: block;">Baños</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-action="decrease" data-type="bathrooms">−</button>
+                                <div class="stepper-value" id="bathroomValue">1</div>
+                                <button type="button" class="stepper-btn" data-action="increase" data-type="bathrooms">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Qué comodidades tienes?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-wifi" value="wifi">
+                            <label for="amenity-wifi">WiFi</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-parking" value="parking">
+                            <label for="amenity-parking">Estacionamiento</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-ac" value="ac">
+                            <label for="amenity-ac">Aire Acondicionado</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-furnished" value="furnished">
+                            <label for="amenity-furnished">Amoblado</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-kitchen" value="kitchen">
+                            <label for="amenity-kitchen">Cocina Equipada</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-washer" value="washer">
+                            <label for="amenity-washer">Lavadora</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-tv" value="tv">
+                            <label for="amenity-tv">Televisor</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="amenity-gym" value="gym">
+                            <label for="amenity-gym">Gimnasio</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Tienes alguna comodidad destacada?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-views" value="views">
+                            <label for="highlight-views">Vistas Panorámicas</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-pool" value="pool">
+                            <label for="highlight-pool">Piscina</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-garden" value="garden">
+                            <label for="highlight-garden">Jardín</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="highlight-terrace" value="terrace">
+                            <label for="highlight-terrace">Terraza</label>
+                        </div>
+                    </div>
+                    <p class="highlight-count"><span id="highlightCount">0</span>/2 seleccionados</p>
+                    <div class="error-message" id="error-highlights"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">¿Cuentas con elementos de seguridad?</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-lock" value="lock">
+                            <label for="security-lock">Cerradura Segura</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-alarm" value="alarm">
+                            <label for="security-alarm">Sistema de Alarma</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-camera" value="camera">
+                            <label for="security-camera">Cámaras de Seguridad</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="security-guard" value="guard">
+                            <label for="security-guard">Vigilancia 24/7</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 3: DESCRIPCIÓN Y ASPECTOS DESTACADOS -->
+            <fieldset data-step="3">
+                <h3 class="step-title">Descripción del Espacio</h3>
+                <p class="step-subtitle">Ahora describamos tu espacio.</p>
+
+                <div class="field-group">
+                    <label for="titleInput">Título del Anuncio</label>
+                    <input type="text" id="titleInput" placeholder="Ej: Departamento moderno en Miraflores" required>
+                    <div class="error-message" id="error-title"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="descriptionInput">Descripción Detallada</label>
+                    <textarea id="descriptionInput" placeholder="Describe tu propiedad, ambiente, servicios cercanos..." required></textarea>
+                    <div class="error-message" id="error-description"></div>
+                </div>
+
+                <div class="field-group">
+                    <label style="margin-bottom: 12px;">Selecciona hasta 2 aspectos destacados</label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-size" value="size" class="aspect-checkbox">
+                            <label for="aspect-size">Tamaño Espacioso</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-light" value="light" class="aspect-checkbox">
+                            <label for="aspect-light">Mucha Luz Natural</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-quiet" value="quiet" class="aspect-checkbox">
+                            <label for="aspect-quiet">Zona Tranquila</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="aspect-location" value="location" class="aspect-checkbox">
+                            <label for="aspect-location">Ubicación Céntrica</label>
+                        </div>
+                    </div>
+                    <p class="highlight-count"><span id="aspectCount">0</span>/2 seleccionados</p>
+                    <div class="error-message" id="error-aspects"></div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 4: UBICACIÓN -->
+            <fieldset data-step="4">
+                <h3 class="step-title">¿Dónde se encuentra?</h3>
+                <p class="step-subtitle">Agrega la ubicación exacta de tu propiedad.</p>
+
+                <div class="field-group">
+                    <label for="districtInput">Distrito</label>
+                    <input type="text" id="districtInput" placeholder="Ej: Miraflores" required>
+                    <div class="error-message" id="error-district"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="addressInput">Dirección Completa</label>
+                    <input type="text" id="addressInput" placeholder="Calle, número y detalles" required>
+                    <div class="error-message" id="error-address"></div>
+                </div>
+
+                <div class="field-group">
+                    <label for="postalInput">Código Postal</label>
+                    <input type="text" id="postalInput" placeholder="Código postal" required>
+                    <div class="error-message" id="error-postal"></div>
+                </div>
+
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <div>
+                        <div class="map-icon">📍</div>
+                        <div>Toca para fijar la ubicación en el mapa</div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 5: VERIFICACIÓN Y RESUMEN -->
+            <fieldset data-step="5">
+                <h3 class="step-title">Verifica tu Información</h3>
+                <p class="step-subtitle">Revisa los datos antes de publicar.</p>
+
+                <div id="summaryContent" style="background: white; border-radius: 12px; padding: 16px; border: 1px solid var(--borde-suave);">
+                    <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
+
+                <div class="suggestion-box">
+                    <strong>¡Perfecto!</strong>
+                    Con esta información, PrediRent puede sugerirte un precio óptimo y ayudarte a atraer más huéspedes.
+                </div>
+            </fieldset>
+
+        </form>
+    </main>
+
+    <footer>
+        <button type="button" class="nav-btn btn-back" id="backBtn">Atrás</button>
+        <button type="button" class="nav-btn btn-next" id="nextBtn">Siguiente</button>
+    </footer>
+
+    <script>
+        const form = document.getElementById('propertyForm');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const backBtn = document.getElementById('backBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        const formData = {
+            propertyType: '',
+            accommodation: '',
+            metrage: '',
+            bedrooms: 1,
+            bathrooms: 1,
+            amenities: [],
+            highlights: [],
+            security: [],
+            title: '',
+            description: '',
+            aspects: [],
+            district: '',
+            address: '',
+            postal: ''
+        };
+
+        function updateProgress() {
+            const percentage = (currentStep / totalSteps) * 100;
+            progressFill.style.width = percentage + '%';
+            const titles = ['Tipo de Espacio', 'Datos Básicos', 'Descripción', 'Ubicación', 'Verificación'];
+            progressText.textContent = `Paso ${currentStep} de ${totalSteps}: ${titles[currentStep - 1]}`;
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('fieldset').forEach(fs => fs.classList.remove('active'));
+            document.querySelector(`fieldset[data-step="${step}"]`).classList.add('active');
+            backBtn.classList.toggle('show', step > 1);
+            const btnTexts = ['Siguiente', 'Siguiente', 'Siguiente', 'Siguiente', 'Finalizar'];
+            nextBtn.textContent = btnTexts[step - 1];
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateStep(step) {
+            const errors = {};
+
+            if (step === 1) {
+                if (!formData.propertyType) errors.propertyType = 'Selecciona un tipo de propiedad';
+                if (!formData.accommodation) errors.accommodation = 'Selecciona un tipo de alojamiento';
+            } else if (step === 2) {
+                if (!document.getElementById('metrageInput').value) errors.metrage = 'Ingresa el metraje';
+                if (formData.highlights.length === 0) errors.highlights = 'Selecciona al menos una comodidad destacada';
+            } else if (step === 3) {
+                if (!document.getElementById('titleInput').value.trim()) errors.title = 'Ingresa un título';
+                if (!document.getElementById('descriptionInput').value.trim()) errors.description = 'Describe tu propiedad';
+                if (formData.aspects.length === 0) errors.aspects = 'Selecciona al menos un aspecto destacado';
+            } else if (step === 4) {
+                if (!document.getElementById('districtInput').value.trim()) errors.district = 'Ingresa el distrito';
+                if (!document.getElementById('addressInput').value.trim()) errors.address = 'Ingresa la dirección';
+                if (!document.getElementById('postalInput').value.trim()) errors.postal = 'Ingresa el código postal';
+            }
+
+            Object.keys(errors).forEach(field => {
+                const errorEl = document.getElementById(`error-${field}`);
+                if (errorEl) {
+                    errorEl.textContent = errors[field];
+                    errorEl.classList.add('show');
+                }
+            });
+
+            return Object.keys(errors).length === 0;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+        }
+
+        function generateSummary() {
+            const summary = `
+                <div style="margin-bottom: 16px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--naranja-principal);">Tipo de Propiedad</strong>
+                    <p>${formData.propertyType.charAt(0).toUpperCase() + formData.propertyType.slice(1)} - ${formData.accommodation}</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--naranja-principal);">Características</strong>
+                    <p>${formData.metrage}m² | ${formData.bedrooms} Hab. | ${formData.bathrooms} Baños</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--naranja-principal);">Comodidades</strong>
+                    <p>${formData.amenities.length > 0 ? formData.amenities.join(', ') : 'Ninguna seleccionada'}</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--naranja-principal);">Ubicación</strong>
+                    <p>${formData.district}, ${formData.address}<br/>Código Postal: ${formData.postal}</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--naranja-principal);">Descripción</strong>
+                    <p style="font-size: 13px;">${formData.description}</p>
+                </div>
+            `;
+            document.getElementById('summaryContent').innerHTML = summary;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            clearErrors();
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    if (currentStep === totalSteps - 1) {
+                        generateSummary();
+                    }
+                    currentStep++;
+                    showStep(currentStep);
+                } else {
+                    submitForm();
+                }
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            clearErrors();
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            if (confirm('¿Deseas cerrar sin guardar?')) {
+                window.history.back();
+            }
+        });
+
+        // Property type selection
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                formData.propertyType = card.dataset.value;
+                clearErrors();
+            });
+        });
+
+        // Accommodation type
+        document.querySelectorAll('input[name="accommodation"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                formData.accommodation = e.target.value;
+                clearErrors();
+            });
+        });
+
+        // Metrage
+        document.getElementById('metrageInput').addEventListener('input', (e) => {
+            formData.metrage = e.target.value;
+        });
+
+        // Stepper controls
+        document.querySelectorAll('.stepper-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const type = btn.dataset.type;
+                const action = btn.dataset.action;
+                const valueEl = document.getElementById(`${type}Value`);
+                let current = parseInt(valueEl.textContent);
+
+                if (action === 'increase' && current < 10) current++;
+                if (action === 'decrease' && current > 1) current--;
+
+                valueEl.textContent = current;
+                formData[type] = current;
+            });
+        });
+
+        // Amenities checkboxes
+        document.querySelectorAll('#amenity-wifi, #amenity-parking, #amenity-ac, #amenity-furnished, #amenity-kitchen, #amenity-washer, #amenity-tv, #amenity-gym').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                formData.amenities = Array.from(
+                    document.querySelectorAll('#amenity-wifi:checked, #amenity-parking:checked, #amenity-ac:checked, #amenity-furnished:checked, #amenity-kitchen:checked, #amenity-washer:checked, #amenity-tv:checked, #amenity-gym:checked')
+                ).map(cb => cb.value);
+            });
+        });
+
+        // Highlights - máximo 2
+        document.querySelectorAll('#highlight-views, #highlight-pool, #highlight-garden, #highlight-terrace').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checked = document.querySelectorAll('#highlight-views:checked, #highlight-pool:checked, #highlight-garden:checked, #highlight-terrace:checked');
+                if (checked.length > 2) {
+                    checkbox.checked = false;
+                } else {
+                    formData.highlights = Array.from(checked).map(cb => cb.value);
+                    document.getElementById('highlightCount').textContent = formData.highlights.length;
+                }
+            });
+        });
+
+        // Security checkboxes
+        document.querySelectorAll('#security-lock, #security-alarm, #security-camera, #security-guard').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                formData.security = Array.from(
+                    document.querySelectorAll('#security-lock:checked, #security-alarm:checked, #security-camera:checked, #security-guard:checked')
+                ).map(cb => cb.value);
+            });
+        });
+
+        // Title
+        document.getElementById('titleInput').addEventListener('input', (e) => {
+            formData.title = e.target.value;
+        });
+
+        // Description
+        document.getElementById('descriptionInput').addEventListener('input', (e) => {
+            formData.description = e.target.value;
+        });
+
+        // Aspects - máximo 2
+        document.querySelectorAll('.aspect-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checked = document.querySelectorAll('.aspect-checkbox:checked');
+                if (checked.length > 2) {
+                    checkbox.checked = false;
+                } else {
+                    formData.aspects = Array.from(checked).map(cb => cb.value);
+                    document.getElementById('aspectCount').textContent = formData.aspects.length;
+                }
+            });
+        });
+
+        // Location fields
+        document.getElementById('districtInput').addEventListener('input', (e) => {
+            formData.district = e.target.value;
+        });
+
+        document.getElementById('addressInput').addEventListener('input', (e) => {
+            formData.address = e.target.value;
+        });
+
+        document.getElementById('postalInput').addEventListener('input', (e) => {
+            formData.postal = e.target.value;
+        });
+
+        // Map placeholder click
+        document.getElementById('mapPlaceholder').addEventListener('click', () => {
+            alert('En una aplicación real, aquí se abriría un mapa interactivo para fijar la ubicación exacta.');
+        });
+
+        function submitForm() {
+            console.log('Datos del formulario:', formData);
+            successMessage.classList.add('show');
+            form.style.display = 'none';
+            nextBtn.disabled = true;
+            backBtn.disabled = true;
+            nextBtn.textContent = '✓ Registrada';
+            
+            setTimeout(() => {
+                alert('¡Propiedad registrada exitosamente!\n\n' + 
+                    `${formData.title}\n` +
+                    `${formData.district} - ${formData.address}\n\n` +
+                    `Características: ${formData.bedrooms} hab, ${formData.bathrooms} baños, ${formData.metrage}m²`);
+            }, 500);
+        }
+
+        showStep(1);
+    </script>

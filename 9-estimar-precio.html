@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrediRent - Estimador de Precio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --naranja-principal: #FF7B54;
+            --naranja-claro: #FFB26B;
+            --verde-confirmacion: #93C47D;
+            --verde-oscuro: #6B8E23;
+            --fondo-claro: #F9F9F9;
+            --texto-principal: #333333;
+            --texto-secundario: #777777;
+            --borde-suave: #E0E0E0;
+            --rojo-error: #E74C3C;
+            --azul-info: #3498DB;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--fondo-claro);
+            color: var(--texto-principal);
+            overflow-x: hidden;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--texto-secundario);
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .close-btn:active {
+            color: var(--naranja-principal);
+        }
+
+        main {
+            margin-top: 80px;
+            margin-bottom: 100px;
+            padding: 16px;
+        }
+
+        .property-selector {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--borde-suave);
+            padding: 16px;
+            margin-bottom: 24px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .property-selector h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        .property-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .property-option {
+            border: 2px solid var(--borde-suave);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .property-option:active {
+            transform: scale(0.98);
+        }
+
+        .property-option.selected {
+            border-color: var(--naranja-principal);
+            background-color: rgba(255, 123, 84, 0.05);
+        }
+
+        .property-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto-principal);
+            margin-bottom: 4px;
+        }
+
+        .property-details {
+            font-size: 12px;
+            color: var(--texto-secundario);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--azul-info);
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #1565C0;
+            line-height: 1.5;
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--borde-suave);
+            padding: 16px;
+            margin-bottom: 24px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--texto-principal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .factor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        .factor-item:last-child {
+            border-bottom: none;
+        }
+
+        .factor-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .factor-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--texto-principal);
+            margin-bottom: 2px;
+        }
+
+        .factor-value {
+            font-size: 11px;
+            color: var(--texto-secundario);
+        }
+
+        .factor-impact {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .impact-positive {
+            background-color: #C8E6C9;
+            color: var(--verde-oscuro);
+        }
+
+        .impact-negative {
+            background-color: #FFCDD2;
+            color: #C62828;
+        }
+
+        .impact-neutral {
+            background-color: #F5F5F5;
+            color: var(--texto-secundario);
+        }
+
+        .price-result {
+            background: linear-gradient(135deg, var(--naranja-principal), var(--naranja-claro));
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(255, 123, 84, 0.3);
+            animation: slideUp 0.6s ease-out 0.2s both;
+        }
+
+        .price-label {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.95;
+            margin-bottom: 8px;
+        }
+
+        .price-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .price-period {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .price-range {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #F1F8E9, #DCEDC8);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--verde-confirmacion);
+        }
+
+        .recommendation-box h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--verde-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .recommendation-box p {
+            font-size: 12px;
+            color: #558B2F;
+            line-height: 1.5;
+        }
+
+        .comparison-chart {
+            margin: 16px 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 150px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--naranja-principal), var(--naranja-claro));
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            white-space: nowrap;
+            color: var(--texto-secundario);
+        }
+
+        .chart-value {
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--texto-secundario);
+        }
+
+        .spinner {
+            border: 3px solid var(--borde-suave);
+            border-top: 3px solid var(--naranja-principal);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            padding: 12px 16px;
+            border-top: 1px solid var(--borde-suave);
+            display: flex;
+            gap: 12px;
+            z-index: 50;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--naranja-principal);
+            color: white;
+        }
+
+        .btn-primary:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--naranja-principal);
+            border: 2px solid var(--naranja-principal);
+        }
+
+        .btn-secondary:active {
+            background: rgba(255, 123, 84, 0.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tips-section {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--borde-suave);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tips-section h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        .tip-item {
+            font-size: 12px;
+            color: var(--texto-secundario);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .tip-item:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--naranja-principal);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Estimador de Precios</h2>
+        <button class="close-btn" id="closeBtn" aria-label="Cerrar">&times;</button>
+    </header>
+
+    <main>
+        <!-- SELECTOR DE PROPIEDAD -->
+        <div class="property-selector">
+            <h3>📌 Selecciona una Propiedad</h3>
+            <div class="property-list" id="propertyList"></div>
+        </div>
+
+        <!-- INFO BOX -->
+        <div class="info-box" id="infoBox">
+            <p>💡 <strong>Tip:</strong> Selecciona una propiedad para ver el análisis detallado de precio basado en datos del mercado local.</p>
+        </div>
+
+        <!-- ANÁLISIS DE FACTORES -->
+        <div class="analysis-section hidden" id="analysisSection">
+            <h3 class="section-title">📊 Análisis de Factores</h3>
+            <div id="factorsList"></div>
+        </div>
+
+        <!-- RESULTADO DE PRECIO -->
+        <div class="price-result hidden" id="priceResult">
+            <div class="price-label">Precio Recomendado</div>
+            <div class="price-value" id="priceValue">S/ 0</div>
+            <div class="price-period">por mes</div>
+            <div class="price-range">
+                <strong>Rango Sugerido:</strong> S/ <span id="priceMin">0</span> - S/ <span id="priceMax">0</span>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE COMPARACIÓN -->
+        <div class="analysis-section hidden" id="comparisonSection">
+            <h3 class="section-title">📈 Comparación de Mercado</h3>
+            <div class="comparison-chart">
+                <div class="chart-bar" id="bar1" style="height: 60%;">
+                    <div class="chart-value" id="value1">S/ 0</div>
+                    <div class="chart-label">Tu Propiedad</div>
+                </div>
+                <div class="chart-bar" id="bar2" style="height: 100%; background: linear-gradient(to top, #90A4AE, #B0BEC5);">
+                    <div class="chart-value" id="value2">S/ 0</div>
+                    <div class="chart-label">Promedio Zona</div>
+                </div>
+                <div class="chart-bar" id="bar3" style="height: 80%; background: linear-gradient(to top, #81C784, #A5D6A7);">
+                    <div class="chart-value" id="value3">S/ 0</div>
+                    <div class="chart-label">Propiedad Premium</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECOMENDACIONES -->
+        <div class="recommendation-box hidden" id="recommendationBox">
+            <h4>💡 Recomendaciones para Maximizar Ingresos</h4>
+            <p id="recommendationText"></p>
+        </div>
+
+        <!-- TIPS -->
+        <div class="tips-section">
+            <h4>📋 Consejos para Aumentar el Valor de tu Propiedad</h4>
+            <div class="tip-item">Mantén la propiedad limpia y bien mantenida</div>
+            <div class="tip-item">Instala amenidades premium como WiFi de alta velocidad</div>
+            <div class="tip-item">Toma fotos de calidad profesional para el anuncio</div>
+            <div class="tip-item">Localízate en zona con buena accesibilidad</div>
+            <div class="tip-item">Ofrece servicios adicionales: limpieza, breakfast, etc</div>
+            <div class="tip-item">Mantén buenas reseñas y puntuación de huéspedes</div>
+        </div>
+    </main>
+
+    <footer>
+        <button class="btn btn-secondary" id="shareBtn">Compartir</button>
+        <button class="btn btn-primary" id="publishBtn">Publicar a este Precio</button>
+    </footer>
+
+    <script>
+        // Mock de propiedades registradas
+        const properties = [
+            {
+                id: 1,
+                title: "Departamento moderno en Miraflores",
+                location: "Miraflores",
+                type: "departamento",
+                metrage: 75,
+                bedrooms: 2,
+                bathrooms: 2,
+                amenities: ['wifi', 'ac', 'furnished', 'kitchen'],
+                highlights: ['views', 'pool'],
+                security: ['lock', 'camera'],
+                description: "Hermoso departamento con vista al mar, completamente amoblado."
+            },
+            {
+                id: 2,
+                title: "Casa con jardín en San Isidro",
+                location: "San Isidro",
+                type: "casa",
+                metrage: 150,
+                bedrooms: 3,
+                bathrooms: 2,
+                amenities: ['parking', 'wifi', 'kitchen', 'tv'],
+                highlights: ['garden', 'terrace'],
+                security: ['lock', 'alarm', 'guard'],
+                description: "Espaciosa casa familiar con amplio jardín y cochera."
+            },
+            {
+                id: 3,
+                title: "Estudio céntrico en Centro de Lima",
+                location: "Centro",
+                type: "estudio",
+                metrage: 35,
+                bedrooms: 1,
+                bathrooms: 1,
+                amenities: ['wifi', 'furnished'],
+                highlights: ['location'],
+                security: ['lock'],
+                description: "Perfecto para estudiantes o profesionales jóvenes."
+            },
+            {
+                id: 4,
+                title: "Oficina moderna en Surco",
+                location: "Surco",
+                type: "oficina",
+                metrage: 80,
+                bedrooms: 1,
+                bathrooms: 1,
+                amenities: ['wifi', 'ac', 'parking'],
+                highlights: [],
+                security: ['lock', 'camera', 'alarm'],
+                description: "Oficina ejecutiva con todas las comodidades."
+            }
+        ];
+
+        let selectedProperty = null;
+        const closeBtn = document.getElementById('closeBtn');
+        const propertyList = document.getElementById('propertyList');
+        const analysisSection = document.getElementById('analysisSection');
+        const priceResult = document.getElementById('priceResult');
+        const comparisonSection = document.getElementById('comparisonSection');
+        const recommendationBox = document.getElementById('recommendationBox');
+        const publishBtn = document.getElementById('publishBtn');
+        const shareBtn = document.getElementById('shareBtn');
+
+        // Cargar propiedades
+        function loadProperties() {
+            propertyList.innerHTML = properties.map(prop => `
+                <div class="property-option" data-id="${prop.id}">
+                    <div class="property-name">${prop.title}</div>
+                    <div class="property-details">
+                        ${prop.metrage}m² • ${prop.bedrooms} hab • ${prop.location}
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.property-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.property-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    const propId = parseInt(option.dataset.id);
+                    selectedProperty = properties.find(p => p.id === propId);
+                    analyzePrice();
+                });
+            });
+        }
+
+        // Algoritmo de estimación de precio
+        function calculatePrice(property) {
+            let basePrice = 0;
+            const location = property.location.toLowerCase();
+
+            // Precio base por m²
+            const pricePerM2 = {
+                'miraflores': 35,
+                'san isidro': 40,
+                'centro': 20,
+                'surco': 38,
+                'default': 25
+            };
+
+            const ppM2 = pricePerM2[location] || pricePerM2.default;
+            basePrice = property.metrage * ppM2;
+
+            // Ajuste por habitaciones
+            basePrice += (property.bedrooms - 1) * 300;
+
+            // Ajuste por baños
+            basePrice += (property.bathrooms - 1) * 200;
+
+            // Ajuste por amenidades
+            const amenityBonus = {
+                'wifi': 100,
+                'parking': 150,
+                'ac': 120,
+                'furnished': 250,
+                'kitchen': 180,
+                'washer': 100,
+                'tv': 80,
+                'gym': 200
+            };
+
+            property.amenities.forEach(amenity => {
+                basePrice += amenityBonus[amenity] || 0;
+            });
+
+            // Ajuste por destacadas
+            const highlightBonus = {
+                'views': 300,
+                'pool': 400,
+                'garden': 250,
+                'terrace': 200,
+                'location': 350
+            };
+
+            property.highlights.forEach(highlight => {
+                basePrice += highlightBonus[highlight] || 0;
+            });
+
+            // Ajuste por seguridad
+            if (property.security.length >= 2) basePrice += 150;
+
+            return Math.round(basePrice);
+        }
+
+        // Datos de factores
+        function getFactors(property) {
+            return [
+                {
+                    name: 'Tamaño',
+                    value: property.metrage + 'm²',
+                    impact: property.metrage > 100 ? 'positive' : 'neutral'
+                },
+                {
+                    name: 'Habitaciones',
+                    value: property.bedrooms + ' hab',
+                    impact: property.bedrooms >= 2 ? 'positive' : 'neutral'
+                },
+                {
+                    name: 'Baños',
+                    value: property.bathrooms + ' baños',
+                    impact: property.bathrooms >= 2 ? 'positive' : 'neutral'
+                },
+                {
+                    name: 'Comodidades',
+                    value: property.amenities.length + ' seleccionadas',
+                    impact: property.amenities.length >= 3 ? 'positive' : property.amenities.length < 2 ? 'negative' : 'neutral'
+                },
+                {
+                    name: 'Seguridad',
+                    value: property.security.length > 0 ? 'Sí' : 'No',
+                    impact: property.security.length >= 2 ? 'positive' : property.security.length === 0 ? 'negative' : 'neutral'
+                },
+                {
+                    name: 'Ubicación',
+                    value: property.location,
+                    impact: ['Miraflores', 'San Isidro', 'Surco'].includes(property.location) ? 'positive' : 'neutral'
+                }
+            ];
+        }
+
+        // Analizar precio
+        function analyzePrice() {
+            if (!selectedProperty) return;
+
+            const estimatedPrice = calculatePrice(selectedProperty);
+            const minPrice = Math.round(estimatedPrice * 0.85);
+            const maxPrice = Math.round(estimatedPrice * 1.15);
+
+            // Mostrar resultado
+            document.getElementById('priceValue').textContent = 'S/ ' + estimatedPrice.toLocaleString('es-PE');
+            document.getElementById('priceMin').textContent = minPrice.toLocaleString('es-PE');
+            document.getElementById('priceMax').textContent = maxPrice.toLocaleString('es-PE');
+
+            // Mostrar factores
+            const factors = getFactors(selectedProperty);
+            document.getElementById('factorsList').innerHTML = factors.map(factor => `
+                <div class="factor-item">
+                    <div class="factor-label">
+                        <div class="factor-name">${factor.name}</div>
+                        <div class="factor-value">${factor.value}</div>
+                    </div>
+                    <div class="factor-impact impact-${factor.impact}">
+                        ${factor.impact === 'positive' ? '↑ Positivo' : factor.impact === 'negative' ? '↓ Negativo' : '→ Neutral'}
+                    </div>
+                </div>
+            `).join('');
+
+            // Comparación
+            const avgZonePrice = estimatedPrice * 0.9;
+            const premiumPrice = estimatedPrice * 1.25;
+
+            document.getElementById('value1').textContent = 'S/ ' + estimatedPrice.toLocaleString('es-PE');
+            document.getElementById('value2').textContent = 'S/ ' + Math.round(avgZonePrice).toLocaleString('es-PE');
+            document.getElementById('value3').textContent = 'S/ ' + Math.round(premiumPrice).toLocaleString('es-PE');
+
+            document.getElementById('bar1').style.height = '60%';
+            document.getElementById('bar2').style.height = '50%';
+            document.getElementById('bar3').style.height = '80%';
+
+            // Recomendaciones
+            let recommendation = '';
+            if (selectedProperty.amenities.length < 3) {
+                recommendation += 'Agrega más comodidades para aumentar el valor. ';
+            }
+            if (selectedProperty.security.length === 0) {
+                recommendation += 'Considera instalar sistemas de seguridad. ';
+            }
+            if (selectedProperty.highlights.length === 0) {
+                recommendation += 'Destaca las características únicas de tu propiedad. ';
+            }
+            if (recommendation === '') {
+                recommendation = '¡Tu propiedad está bien posicionada! Mantén buenas reseñas y considera ofertas especiales para baja temporada.';
+            }
+
+            document.getElementById('recommendationText').textContent = recommendation;
+
+            // Mostrar secciones
+            analysisSection.classList.remove('hidden');
+            priceResult.classList.remove('hidden');
+            comparisonSection.classList.remove('hidden');
+            recommendationBox.classList.remove('hidden');
+        }
+
+        closeBtn.addEventListener('click', () => {
+            if (confirm('¿Deseas cerrar?')) {
+                window.history.back();
+            }
+        });
+
+        publishBtn.addEventListener('click', () => {
+            if (selectedProperty) {
+                const price = document.getElementById('priceValue').textContent;
+                alert(`Propiedad publicada a ${price} mensuales.\n\n"${selectedProperty.title}"\n${selectedProperty.location}`);
+            }
+        });
+
+        shareBtn.addEventListener('click', () => {
+            if (selectedProperty) {
+                alert('Compartiendo estimación de precio...\n\nOpción para compartir con amigos, redes sociales o generar reportes PDF.');
+            }
+        });
+
+        // Inicializar
+        loadProperties();
+    </script>
+</body>
+</html>
