@@ -1,43 +1,53 @@
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     loadUserProperties();
+    setupEventListeners();
 });
 
 let userProperties = [];
 let selectedProperty = null;
 
 const propertyList = document.getElementById('propertyList');
-const analysisContainer = document.getElementById('analysisContainer');
 const infoBox = document.getElementById('infoBox');
 const analysisSection = document.getElementById('analysisSection');
 const priceResult = document.getElementById('priceResult');
-const comparisonSection = document.getElementById('comparisonSection');
-const recommendationBox = document.getElementById('recommendationBox');
 
 async function loadUserProperties() {
-    propertyList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    showLoading(true, '#propertyList', '<div class="loading"><div class="spinner"></div></div>');
     try {
+        // CORRECCIÓN: La ruta no debe incluir /api, ya que fetchWithAuth lo añade.
         const response = await fetchWithAuth('/propiedades/mis-propiedades');
+        
         if (response.ok) {
-            userProperties = await response.json();
+            const responseData = await response.json();
+            // CORRECCIÓN: El controlador ahora envuelve la respuesta en un objeto { data: [...] }
+            userProperties = responseData.data;
+            console.log('Propiedades recibidas del backend:', userProperties);
             renderPropertySelector(userProperties);
         } else {
-            propertyList.innerHTML = '<p>Error al cargar propiedades.</p>';
+            const errorData = await response.text();
+            console.error('Error del backend al cargar propiedades:', response.status, errorData);
+            propertyList.innerHTML = `<p>Error ${response.status} al cargar propiedades. Revisa la consola del servidor.</p>`;
         }
     } catch (error) {
-        propertyList.innerHTML = '<p>Error de conexión.</p>';
+        console.error('Error de red o de conexión:', error);
+        propertyList.innerHTML = '<p>Error de conexión. ¿El servidor está encendido?</p>';
+    } finally {
+        showLoading(false, '#propertyList');
     }
 }
 
 function renderPropertySelector(properties) {
-    if (properties.length === 0) {
-        propertyList.innerHTML = '<p>No tienes propiedades registradas.</p>';
+    if (!properties || properties.length === 0) {
+        propertyList.innerHTML = '<p>No tienes propiedades registradas para estimar.</p>';
+        infoBox.classList.remove('hidden');
         return;
     }
+    infoBox.classList.add('hidden');
     propertyList.innerHTML = properties.map(prop => `
-        <div class="property-option" data-id="${prop._id}">
-            <div class="property-name">${prop.titulo}</div>
-            <div class="property-details">${prop.metrosCuadrados}m² • ${prop.habitaciones} hab • ${prop.distrito}</div>
+        <div class="property-option" data-id="${prop.PropiedadID}">
+            <div class="property-name">${prop.Titulo}</div>
+            <div class="property-details">${prop.TipoPropiedad} • ${prop.Distrito}</div>
         </div>
     `).join('');
 
@@ -45,69 +55,66 @@ function renderPropertySelector(properties) {
         option.addEventListener('click', () => {
             document.querySelectorAll('.property-option').forEach(o => o.classList.remove('selected'));
             option.classList.add('selected');
-            selectedProperty = userProperties.find(p => p._id === option.dataset.id);
-            analyzePrice(selectedProperty);
+            selectedProperty = userProperties.find(p => p.PropiedadID.toString() === option.dataset.id);
+            document.getElementById('btnCalcularPrecio').disabled = false;
         });
     });
 }
 
-async function analyzePrice(property) {
-    infoBox.classList.add('hidden');
-    showLoading(true);
-
+async function calculateAndShowPrice() {
+    if (!selectedProperty) {
+        alert('Por favor, selecciona una propiedad primero.');
+        return;
+    }
+    showLoading(true, '#analysisSection', '<div class="loading"><div class="spinner"></div><p>Analizando mercado...</p></div>');
+    
     try {
-        const [priceRes, comparisonRes] = await Promise.all([
-            fetchWithAuth('/estimador/calcular', { method: 'POST', body: JSON.stringify(property) }),
-            fetchWithAuth(`/estimador/comparacion?distrito=${property.distrito}&metrosCuadrados=${property.metrosCuadrados}`)
-        ]);
+        // CORRECCIÓN: La ruta no debe incluir /api
+        const response = await fetchWithAuth('/estimador/calcular', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ propiedadId: selectedProperty.PropiedadID })
+        });
 
-        if (priceRes.ok && comparisonRes.ok) {
-            const priceData = await priceRes.json();
-            const comparisonData = await comparisonRes.json();
-            displayResults(priceData, comparisonData, property);
+        if (response.ok) {
+            const result = await response.json();
+            displayResults(result.data);
         } else {
-            throw new Error('Error al obtener datos de la API');
+            throw new Error('No se pudo obtener la estimación.');
         }
     } catch (error) {
         alert('No se pudo realizar el análisis. Inténtalo de nuevo.');
+        console.error('Error en analyzePrice:', error);
     } finally {
-        showLoading(false);
+        showLoading(false, '#analysisSection');
     }
 }
 
-function displayResults(priceData, comparisonData, property) {
-    // Precio estimado
-    document.getElementById('priceValue').textContent = `S/ ${priceData.precioEstimado.toLocaleString()}`;
-    document.getElementById('priceMin').textContent = priceData.rango[0].toLocaleString();
-    document.getElementById('priceMax').textContent = priceData.rango[1].toLocaleString();
-
-    // Factores
-    document.getElementById('factorsList').innerHTML = priceData.factores.map(f => `
-        <div class="factor-item">
-            <div class="factor-label"><div class="factor-name">${f.nombre}</div><div class="factor-value">${f.valor}</div></div>
-            <div class="factor-impact impact-${f.impacto}">${f.impacto === 'positive' ? '↑ Positivo' : '↓ Negativo'}</div>
-        </div>
-    `).join('');
-
-    // Gráfico de comparación
-    document.getElementById('value1').textContent = `S/ ${priceData.precioEstimado.toLocaleString()}`;
-    document.getElementById('value2').textContent = `S/ ${comparisonData.promedioZona.toLocaleString()}`;
-    document.getElementById('value3').textContent = `S/ ${comparisonData.promedioPremium.toLocaleString()}`;
-    // Lógica para alturas de barras...
-
-    // Recomendación
-    document.getElementById('recommendationText').textContent = priceData.recomendacion;
-
-    [analysisSection, priceResult, comparisonSection, recommendationBox].forEach(el => el.classList.remove('hidden'));
+function displayResults(data) {
+    priceResult.classList.remove('hidden');
+    let displayText = `<strong>Precio Sugerido:</strong> S/ ${data.precio_predicho.toLocaleString()}`;
+    if (data.fallback) {
+        displayText += ' <small><em>(estimación básica)</em></small>';
+    }
+    document.getElementById('priceValue').innerHTML = displayText;
 }
 
-function showLoading(isLoading) {
+function showLoading(isLoading, containerSelector, content) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
     if (isLoading) {
-        analysisContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analizando mercado...</p></div>';
+        container.innerHTML = content;
     } else {
-        const loadingEl = analysisContainer.querySelector('.loading');
-        if (loadingEl) loadingEl.remove();
+        const loadingEl = container.querySelector('.loading');
+        if (loadingEl) loadingEl.parentElement.innerHTML = '';
     }
 }
 
-document.getElementById('closeBtn').addEventListener('click', () => window.history.back());
+function setupEventListeners() {
+    document.getElementById('closeBtn').addEventListener('click', () => window.history.back());
+    const calculateBtn = document.getElementById('btnCalcularPrecio');
+    if(calculateBtn) {
+        calculateBtn.disabled = true; // Deshabilitado hasta que se seleccione una propiedad
+        calculateBtn.addEventListener('click', calculateAndShowPrice);
+    }
+}

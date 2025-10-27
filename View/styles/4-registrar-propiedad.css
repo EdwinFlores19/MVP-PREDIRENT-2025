@@ -125,8 +125,8 @@ fieldset.active {
 }
 
 .option-card.selected {
-    background-color: #ff8c00 !important;
     border-color: #ff8c00 !important;
+    background-color: #ff8c00 !important;
     color: #fff !important;
 }
 
@@ -296,4 +296,15 @@ footer {
     flex-grow: 1;
     background: var(--naranja-principal);
     color: white;
+}
+
+.btn-secondary {
+    width: 100%;
+    background: white;
+    color: var(--naranja-principal);
+    border: 1px solid var(--naranja-principal);
+}
+
+.suggestion-box.hidden {
+    display: none;
 }

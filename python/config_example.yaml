@@ -1,0 +1,1 @@
+db_connection: "DRIVER={ODBC Driver 17 for SQL Server};SERVER=127.0.0.1;DATABASE=PrediRentDB;UID=...;PWD=..."

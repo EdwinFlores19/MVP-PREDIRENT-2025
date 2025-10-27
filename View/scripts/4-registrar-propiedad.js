@@ -38,14 +38,12 @@ function setupEventListeners() {
         }
     });
 
-    // Event listeners para la interacción visual de selecciones
     document.querySelectorAll('.option-card, .amenity-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
             if (btn.classList.contains('option-card')) {
-                // Deseleccionar otras tarjetas del mismo grupo
                 btn.closest('.option-grid').querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
             }
-            btn.classList.toggle('selected'); // Usar 'selected' como clase única
+            btn.classList.toggle('selected');
         });
     });
 
@@ -59,6 +57,41 @@ function setupEventListeners() {
             valueEl.textContent = current;
         });
     });
+
+    document.getElementById('btnCalcularPrecio').addEventListener('click', async () => {
+        const btn = document.getElementById('btnCalcularPrecio');
+        btn.disabled = true;
+        btn.textContent = 'Calculando...';
+        const resultDiv = document.getElementById('precioSugeridoResult');
+
+        const propertyData = collectFormData();
+        try {
+            const response = await fetchWithAuth('/api/estimador/prediccion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(propertyData)
+            });
+            if (response.ok) {
+                const result = await response.json();
+                let displayText = `<strong>Precio Sugerido:</strong> S/ ${result.data.precio_predicho.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                if (result.data.dummy) {
+                    displayText += ' <small><em>(estimación básica)</em></small>';
+                }
+                resultDiv.innerHTML = displayText;
+                resultDiv.classList.remove('hidden');
+            } else {
+                const errorData = await response.json();
+                resultDiv.innerHTML = `No se pudo calcular: ${errorData.message}`;
+                resultDiv.classList.remove('hidden');
+            }
+        } catch (error) {
+            resultDiv.innerHTML = 'Error de conexión con el estimador.';
+            resultDiv.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Calcular Precio Sugerido';
+        }
+    });
 }
 
 function collectFormData() {
@@ -67,7 +100,7 @@ function collectFormData() {
              .filter(el => el.classList.contains('selected'))
              .map(el => el.dataset.value);
 
-    const safeInt = (id) => parseInt(document.getElementById(id).textContent, 10) || 0;
+    const safeInt = (id) => parseInt(document.getElementById(id).textContent, 10) || 1;
 
     return {
         tipoPropiedad: document.querySelector('#propertyTypes .option-card.selected')?.dataset.value || '',
@@ -98,7 +131,7 @@ async function submitForm() {
     nextBtn.textContent = 'Registrando...';
 
     const propertyData = collectFormData();
-    console.log("Enviando los siguientes datos recolectados:", propertyData);
+    propertyData.calcularPrecio = true; // Indicar al backend que intente calcular y guardar el precio
 
     if (!propertyData.tipoPropiedad || !propertyData.titulo) {
         alert('El tipo de propiedad y el título son obligatorios.');
@@ -108,7 +141,7 @@ async function submitForm() {
     }
 
     try {
-        const response = await fetchWithAuth('/propiedades', {
+        const response = await fetchWithAuth('/api/propiedades', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

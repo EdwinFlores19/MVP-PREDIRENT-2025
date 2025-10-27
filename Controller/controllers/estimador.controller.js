@@ -1,57 +1,104 @@
-// 📁 Controller/controllers/estimador.controller.js
-const EstimadorModel = require('../../Model/Estimador.model');
+const { spawn } = require('child_process');
+const fetch = require('node-fetch');
 
-exports.calcularPrecio = (req, res) => {
+const normalizeAndSanitize = (rawData) => {
+    const safeInt = (value, defaultValue = 1) => {
+        const parsed = parseInt(value, 10);
+        return isNaN(parsed) ? defaultValue : parsed;
+    };
+    const accommodationMapping = { 'entero': 'entire', 'habitacion': 'room', 'compartida': 'shared' };
+
+    return {
+        TipoPropiedad: rawData.tipoPropiedad || '',
+        TipoAlojamiento: accommodationMapping[rawData.tipoAlojamiento] || rawData.tipoAlojamiento || '',
+        Distrito: rawData.distrito || '',
+        Provincia: rawData.provincia || '',
+        huespedes: safeInt(rawData.huespedes),
+        habitaciones: safeInt(rawData.habitaciones),
+        camas: safeInt(rawData.camas),
+        baños: safeInt(rawData.baños || rawData.banos),
+        comodidades: rawData.comodidades || []
+    };
+};
+
+const predictWithFastAPI = async (payload) => {
     try {
-        // req.body debe contener el objeto de la propiedad
-        // { location, metrage, bedrooms, bathrooms, amenities, highlights, security }
-        const propertyFeatures = req.body;
-        
-        const precioEstimado = EstimadorModel.calculatePrice(propertyFeatures);
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                precioEstimado: precioEstimado,
-                rangoMin: Math.round(precioEstimado * 0.85),
-                rangoMax: Math.round(precioEstimado * 1.15)
-            }
+        const response = await fetch('http://localhost:8000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            timeout: 5000 // Timeout de 5 segundos
         });
-
+        if (!response.ok) throw new Error(`FastAPI response not OK: ${response.status}`);
+        return response.json();
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Error al calcular el precio.'
-        });
+        console.error("Error al contactar la API de FastAPI:", error.message);
+        throw new Error("El microservicio de predicción no está disponible.");
     }
 };
 
-exports.getComparacionMercado = async (req, res) => {
+const predictWithChildProcess = (payload) => {
+    return new Promise((resolve, reject) => {
+        const process = spawn('python', ['python/predict.py', JSON.stringify(payload)]);
+        let data = '';
+        let errorData = '';
+
+        process.stdout.on('data', (chunk) => data += chunk.toString());
+        process.stderr.on('data', (chunk) => errorData += chunk.toString());
+
+        const timeout = setTimeout(() => {
+            process.kill();
+            reject(new Error('Timeout: El script de Python tardó demasiado.'));
+        }, 10000);
+
+        process.on('close', (code) => {
+            clearTimeout(timeout);
+            if (code === 0) {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (e) {
+                    reject(new Error('La respuesta del script de Python no es un JSON válido.'));
+                }
+            } else {
+                reject(new Error(`Error en script de Python (código ${code}): ${errorData}`))
+            }
+        });
+    });
+};
+
+exports.predecirPrecio = async (req, res) => {
     try {
-        // Los datos llegan por query: /comparacion?distrito=Miraflores&tipo=departamento&hab=2
-        const { distrito, tipoPropiedad, numHabitaciones } = req.query;
+        const sanitizedPayload = normalizeAndSanitize(req.body);
+        let predictionResult;
 
-        if (!distrito || !tipoPropiedad || !numHabitaciones) {
-            return res.status(400).json({ status: 'error', message: 'Faltan parámetros de consulta.' });
+        if (process.env.USE_FASTAPI === 'true') {
+            predictionResult = await predictWithFastAPI(sanitizedPayload);
+        } else {
+            try {
+                predictionResult = await predictWithChildProcess(sanitizedPayload);
+            } catch (error) {
+                console.warn('--- ADVERTENCIA: Fallback a estimación dummy ---');
+                console.warn('Causa:', error.message);
+                console.warn('Asegúrate de que Python esté instalado y las dependencias de python/requirements.txt estén en el entorno correcto.');
+                // Fallback a un modelo dummy si el script local falla
+                predictionResult = { precio_predicho: 1450.0, dummy: true };
+            }
         }
 
-        const comparacion = await EstimadorModel.getMarketComparison(distrito, tipoPropiedad, parseInt(numHabitaciones));
-        
-        if (!comparacion) {
-            return res.status(404).json({ status: 'success', data: null, message: 'No se encontraron datos de mercado para esta configuración.' });
+        if (predictionResult.error) {
+            throw new Error(predictionResult.error);
         }
 
-        res.status(200).json({
-            status: 'success',
-            data: comparacion // { PrecioPromedio, PrecioPremium }
+        res.status(200).json({ 
+            status: 'success', 
+            data: predictionResult 
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Error al obtener la comparación de mercado.'
+        console.error('Error final en el controlador de predicción:', error.message);
+        res.status(500).json({ 
+            status: 'error', 
+            message: error.message || 'No se pudo obtener la predicción.' 
         });
     }
 };

@@ -44,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Monta todas las rutas de la API bajo el prefijo '/api'
 app.use('/api', mainRouter);
+app.use('/api/estimador', require('./Controller/routes/estimador.routes'));
 
 // === Manejo de Errores Global ===
 // Un middleware simple para capturar errores no manejados

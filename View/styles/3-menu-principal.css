@@ -290,6 +290,21 @@ section {
     color: var(--texto-secundario);
 }
 
+.badge-active {
+    background: #ff8c00;
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.badge-active.retry {
+    background: #E74C3C;
+    cursor: pointer;
+}
+
 /* FAB - FLOATING ACTION BUTTON */
 .fab {
     position: fixed;

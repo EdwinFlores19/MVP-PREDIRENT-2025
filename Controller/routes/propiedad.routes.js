@@ -15,4 +15,8 @@ router.post('/', propController.crearPropiedad);
 // (Vista: 3-menu-principal.html)
 router.get('/mis-propiedades', propController.getMisPropiedades);
 
+// GET /api/propiedades/activas/count
+// (Vista: 3-menu-principal.html)
+router.get('/activas/count', propController.contarPropiedadesActivas);
+
 module.exports = router;
