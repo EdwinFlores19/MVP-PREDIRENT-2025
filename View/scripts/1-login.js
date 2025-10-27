@@ -19,13 +19,13 @@ togglePassword.addEventListener('click', function() {
     }
 });
 
-// === VALIDACIÓN DEL FORMULARIO ===
+// === VALIDACIÓN DEL FORMULARIO Y LOGIN ===
 const loginForm = document.getElementById('loginForm');
 const errorMessage = document.getElementById('errorMessage');
 const emailInput = document.getElementById('email');
 const loginCard = document.querySelector('.login-card');
 
-loginForm.addEventListener('submit', function(e) {
+loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     errorMessage.classList.remove('show');
@@ -43,19 +43,38 @@ loginForm.addEventListener('submit', function(e) {
         return;
     }
 
-    if (password.length < 6) {
-        showError('La contraseña debe tener al menos 6 caracteres.');
-        return;
-    }
-
-    // Efecto de carga
     loginCard.classList.add('loading');
-    
-    setTimeout(() => {
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.data.token) {
+            console.log('Login exitoso. Datos recibidos:', data.data);
+            // Guardar token y datos del usuario
+            localStorage.setItem('token', data.data.token);
+            localStorage.setItem('user', JSON.stringify(data.data.user));
+            
+            console.log('Usuario guardado en localStorage:', localStorage.getItem('user'));
+            
+            // Redirigir al menú principal
+            window.location.href = '3-menu-principal.html';
+        } else {
+            showError(data.message || 'Error en el servidor. Inténtalo de nuevo.');
+        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        showError('Error de conexión. Verifica tu conexión a internet.');
+    } finally {
         loginCard.classList.remove('loading');
-        console.log('Intentando iniciar sesión con:', { email, password });
-        alert('Formulario validado correctamente. En producción, aquí se enviaría la solicitud al servidor.');
-    }, 1500);
+    }
 });
 
 // === FUNCIÓN PARA MOSTRAR ERRORES ===
@@ -92,30 +111,4 @@ passwordInput.addEventListener('input', function() {
     if (errorMessage.classList.contains('show')) {
         errorMessage.classList.remove('show');
     }
-});
-
-// === EFECTO DE PARTÍCULAS EN MOVIMIENTO ===
-document.querySelectorAll('.particle').forEach((particle, index) => {
-    particle.style.animationDelay = `${index * 1.5}s`;
-});
-
-// === EFECTO DE ENTRADA PARA INPUTS ===
-const inputs = document.querySelectorAll('input');
-inputs.forEach(input => {
-    input.addEventListener('focus', function() {
-        this.parentElement.style.transform = 'scale(1.01)';
-    });
-    
-    input.addEventListener('blur', function() {
-        this.parentElement.style.transform = 'scale(1)';
-    });
-});
-
-// === ANIMACIÓN DE BIENVENIDA ===
-window.addEventListener('load', () => {
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    }, 100);
 });

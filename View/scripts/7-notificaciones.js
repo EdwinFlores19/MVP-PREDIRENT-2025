@@ -1,105 +1,96 @@
-// Variables globales
-const popupOverlay = document.getElementById("popupOverlay");
-const notificationsList = document.getElementById("notificationsList");
-const emptyState = document.getElementById("emptyState");
-const allNotifications = document.querySelectorAll(".notification-item");
-const tabButtons = document.querySelectorAll(".tab-button");
-
-let currentFilter = "todas";
-
-// Mostrar popup automáticamente después de 2 segundos (demo)
-setTimeout(() => {
-  showPopup();
-}, 2000);
-
-// Funciones del Popup
-function showPopup() {
-  popupOverlay.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
-
-function closePopup() {
-  popupOverlay.classList.remove("active");
-  document.body.style.overflow = "";
-}
-
-function handleOpportunity() {
-  closePopup();
-  alert("Navegando a la página de edición de propiedad...");
-  console.log("Acción: Ver oportunidad de mercado");
-}
-
-// Cerrar popup al hacer clic en el overlay
-popupOverlay.addEventListener("click", function (e) {
-  if (e.target === popupOverlay) {
-    closePopup();
-  }
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    loadNotifications('todas');
+    loadMarketAlert();
 });
 
-// Cerrar popup con tecla Escape
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" && popupOverlay.classList.contains("active")) {
-    closePopup();
-  }
-});
+const notificationsList = document.getElementById('notificationsList');
+const emptyState = document.getElementById('emptyState');
+const popupOverlay = document.getElementById('popupOverlay');
 
-// Funciones de Notificaciones
-function toggleNotification(element) {
-  // Expandir/contraer notificación
-  element.classList.toggle("expanded");
-
-  // Marcar como leída
-  if (element.classList.contains("unread")) {
-    element.classList.remove("unread");
-    const badge = element.querySelector(".unread-badge");
-    if (badge) {
-      badge.style.transform = "scale(0)";
-      setTimeout(() => badge.remove(), 200);
+async function loadNotifications(filter) {
+    notificationsList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    try {
+        const response = await fetchWithAuth(`/notificaciones?filter=${filter}`);
+        if (response.ok) {
+            const notifications = await response.json();
+            renderNotifications(notifications);
+        }
+    } catch (error) {
+        notificationsList.innerHTML = '<p>Error al cargar notificaciones.</p>';
     }
-  }
+}
+
+function renderNotifications(notifications) {
+    notificationsList.innerHTML = '';
+    emptyState.classList.toggle('visible', notifications.length === 0);
+    notificationsList.classList.toggle('hidden', notifications.length === 0);
+
+    notifications.forEach(notif => {
+        const item = document.createElement('div');
+        item.className = `notification-item ${!notif.leida ? 'unread' : ''}`;
+        item.dataset.type = notif.tipo;
+        item.dataset.id = notif._id;
+        item.innerHTML = `
+            <div class="notification-icon ${notif.tipo}">...</div>
+            <div class="notification-content">
+                <div class="notification-title">${notif.titulo}</div>
+                <p class="notification-message">${notif.mensaje}</p>
+                <small class="notification-time">${new Date(notif.fecha).toLocaleString()}</small>
+            </div>
+            ${!notif.leida ? '<span class="unread-badge"></span>' : ''}
+        `;
+        item.addEventListener('click', () => toggleNotification(item));
+        notificationsList.appendChild(item);
+    });
+}
+
+async function toggleNotification(element) {
+    element.classList.toggle('expanded');
+    if (element.classList.contains('unread')) {
+        const notifId = element.dataset.id;
+        try {
+            await fetchWithAuth(`/notificaciones/${notifId}/leer`, { method: 'PATCH' });
+            element.classList.remove('unread');
+            element.querySelector('.unread-badge')?.remove();
+        } catch (error) {
+            console.error('Error al marcar la notificación como leída:', error);
+        }
+    }
 }
 
 function filterNotifications(filter) {
-  currentFilter = filter;
-
-  // Actualizar tabs
-  tabButtons.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.filter === filter);
-  });
-
-  // Filtrar notificaciones
-  let visibleCount = 0;
-
-  allNotifications.forEach((notification) => {
-    const type = notification.dataset.type;
-    const shouldShow = filter === "todas" || type === filter;
-
-    notification.classList.toggle("hidden", !shouldShow);
-    if (shouldShow) visibleCount++;
-  });
-
-  // Mostrar estado vacío si no hay resultados
-  if (visibleCount === 0) {
-    notificationsList.classList.add("hidden");
-    emptyState.classList.add("visible");
-  } else {
-    notificationsList.classList.remove("hidden");
-    emptyState.classList.remove("visible");
-  }
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    loadNotifications(filter);
 }
 
-function goBack() {
-  console.log("Volver al Dashboard");
-  alert("Navegando al Dashboard...");
-}
-
-// Marcar todas como leídas (función auxiliar)
-function markAllAsRead() {
-  allNotifications.forEach((notification) => {
-    if (notification.classList.contains("unread")) {
-      notification.classList.remove("unread");
-      const badge = notification.querySelector(".unread-badge");
-      if (badge) badge.remove();
+async function loadMarketAlert() {
+    try {
+        const response = await fetchWithAuth('/notificaciones/alertas-mercado');
+        if (response.ok) {
+            const alert = await response.json();
+            if (alert) showPopup(alert);
+        }
+    } catch (error) {
+        console.error('Error al cargar alerta de mercado:', error);
     }
-  });
 }
+
+function showPopup(alert) {
+    popupOverlay.querySelector('h3').textContent = alert.titulo;
+    popupOverlay.querySelector('p').textContent = alert.mensaje;
+    popupOverlay.classList.add('active');
+}
+
+function closePopup() {
+    popupOverlay.classList.remove('active');
+}
+
+function handleOpportunity() {
+    closePopup();
+    alert("Navegando a la página de edición de propiedad...");
+}
+
+document.querySelector('.back-button').addEventListener('click', () => window.history.back());

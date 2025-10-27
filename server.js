@@ -18,6 +18,16 @@ const mainRouter = require('./Controller/routes/index');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.get('/', async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query('SELECT GETDATE() AS now');
+    res.json({ ok: true, now: result.recordset[0].now });
+  } catch (err) {
+    console.error('Error en route / :', err);
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
 // === Configuración de Middleware ===
 
 // 1. CORS (Cross-Origin Resource Sharing)

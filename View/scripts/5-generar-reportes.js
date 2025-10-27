@@ -1,12 +1,15 @@
-// Estado de la aplicación
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    updateGenerateButton();
+});
+
 const state = {
-  selectedProperties: [],
-  selectedContent: [],
-  month: 9,
-  year: 2025
+    selectedProperties: [],
+    selectedContent: [],
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
 };
 
-// Elementos del DOM
 const propertyList = document.getElementById('propertyList');
 const contentOptions = document.getElementById('contentOptions');
 const generateBtn = document.getElementById('generateBtn');
@@ -16,148 +19,105 @@ const backButton = document.querySelector('.back-button');
 const monthSelect = document.getElementById('monthSelect');
 const yearSelect = document.getElementById('yearSelect');
 
-// Función para manejar la selección de propiedades
+// Inicializar selects de fecha
+monthSelect.value = state.month;
+yearSelect.value = state.year;
+
 function toggleProperty(propertyItem) {
-  const propertyId = propertyItem.dataset.property;
-  const checkbox = propertyItem.querySelector('.custom-checkbox');
-  
-  if (state.selectedProperties.includes(propertyId)) {
-    state.selectedProperties = state.selectedProperties.filter(id => id !== propertyId);
-    propertyItem.classList.remove('selected');
-    checkbox.classList.remove('checked');
-  } else {
-    state.selectedProperties.push(propertyId);
-    propertyItem.classList.add('selected');
-    checkbox.classList.add('checked');
-  }
-  
-  updateGenerateButton();
+    const propertyId = propertyItem.dataset.property;
+    const checkbox = propertyItem.querySelector('.custom-checkbox');
+    const index = state.selectedProperties.indexOf(propertyId);
+
+    if (index > -1) {
+        state.selectedProperties.splice(index, 1);
+        propertyItem.classList.remove('selected');
+        checkbox.classList.remove('checked');
+    } else {
+        state.selectedProperties.push(propertyId);
+        propertyItem.classList.add('selected');
+        checkbox.classList.add('checked');
+    }
+    updateGenerateButton();
 }
 
-// Función para manejar la selección de contenido
 function toggleContent(contentItem) {
-  const contentId = contentItem.dataset.content;
-  const checkbox = contentItem.querySelector('.custom-checkbox');
-  
-  if (state.selectedContent.includes(contentId)) {
-    state.selectedContent = state.selectedContent.filter(id => id !== contentId);
-    checkbox.classList.remove('checked');
-  } else {
-    state.selectedContent.push(contentId);
-    checkbox.classList.add('checked');
-  }
-  
-  updateGenerateButton();
+    const contentId = contentItem.dataset.content;
+    const checkbox = contentItem.querySelector('.custom-checkbox');
+    const index = state.selectedContent.indexOf(contentId);
+
+    if (index > -1) {
+        state.selectedContent.splice(index, 1);
+        checkbox.classList.remove('checked');
+    } else {
+        state.selectedContent.push(contentId);
+        checkbox.classList.add('checked');
+    }
+    updateGenerateButton();
 }
 
-// Función para actualizar el estado del botón de generar
 function updateGenerateButton() {
-  if (state.selectedProperties.length > 0 && state.selectedContent.length > 0) {
-    generateBtn.disabled = false;
-  } else {
+    generateBtn.disabled = !(state.selectedProperties.length > 0 && state.selectedContent.length > 0);
+}
+
+async function generateReport() {
+    generateBtn.classList.add('loading');
     generateBtn.disabled = true;
-  }
+
+    const reportData = {
+        propiedadID: state.selectedProperties,
+        mes: state.month,
+        año: state.year,
+        tiposContenido: state.selectedContent,
+    };
+
+    try {
+        const response = await fetchWithAuth('/reportes/generar', {
+            method: 'POST',
+            body: JSON.stringify(reportData),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showSuccessModal(result.reportUrl); // Asumimos que la API devuelve una URL para el reporte
+        } else {
+            const error = await response.json();
+            alert(`Error al generar el reporte: ${error.message}`);
+        }
+    } catch (error) {
+        alert('Error de conexión al generar el reporte.');
+    } finally {
+        generateBtn.classList.remove('loading');
+        updateGenerateButton();
+    }
 }
 
-// Función para generar el reporte
-function generateReport() {
-  generateBtn.classList.add('loading');
-  generateBtn.disabled = true;
-  
-  // Simular el proceso de generación del reporte
-  setTimeout(() => {
-    generateBtn.classList.remove('loading');
-    showSuccessModal();
-  }, 2000);
+function showSuccessModal(reportUrl) {
+    successModal.classList.add('show');
+    downloadBtn.onclick = () => downloadReport(reportUrl);
 }
 
-// Función para mostrar el modal de éxito
-function showSuccessModal() {
-  successModal.classList.add('show');
-}
-
-// Función para cerrar el modal y simular descarga
-function downloadReport() {
-  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const monthName = months[state.month - 1];
-  
-  console.log(`Descargando reporte: Reporte_${monthName}_${state.year}.pdf`);
-  console.log('Propiedades:', state.selectedProperties);
-  console.log('Contenido:', state.selectedContent);
-  
-  successModal.classList.remove('show');
-  
-  // Resetear el formulario
-  state.selectedProperties = [];
-  state.selectedContent = [];
-  
-  document.querySelectorAll('.property-item').forEach(item => {
-    item.classList.remove('selected');
-    item.querySelector('.custom-checkbox').classList.remove('checked');
-  });
-  
-  document.querySelectorAll('.content-item .custom-checkbox').forEach(checkbox => {
-    checkbox.classList.remove('checked');
-  });
-  
-  updateGenerateButton();
-}
-
-// Función para manejar el botón de volver
-function goBack() {
-  console.log('Volviendo al Dashboard');
-  // En una aplicación real, aquí se navegaría de vuelta
-}
-
-// Event Listeners para propiedades
-propertyList.addEventListener('click', (e) => {
-  const propertyItem = e.target.closest('.property-item');
-  if (propertyItem) {
-    toggleProperty(propertyItem);
-  }
-});
-
-// Event Listeners para contenido
-contentOptions.addEventListener('click', (e) => {
-  const contentItem = e.target.closest('.content-item');
-  if (contentItem) {
-    toggleContent(contentItem);
-  }
-});
-
-// Event Listener para generar reporte
-generateBtn.addEventListener('click', generateReport);
-
-// Event Listener para descargar reporte
-downloadBtn.addEventListener('click', downloadReport);
-
-// Event Listener para botón de volver
-backButton.addEventListener('click', goBack);
-
-// Event Listeners para los selectores de período
-monthSelect.addEventListener('change', (e) => {
-  state.month = parseInt(e.target.value);
-});
-
-yearSelect.addEventListener('change', (e) => {
-  state.year = parseInt(e.target.value);
-});
-
-// Event Listener para cerrar modal al hacer clic fuera
-successModal.addEventListener('click', (e) => {
-  if (e.target === successModal) {
+function downloadReport(reportUrl) {
+    console.log(`Descargando reporte desde: ${reportUrl}`);
+    // En un caso real, se podría abrir la URL en una nueva pestaña o usar una librería para forzar la descarga.
+    window.open(reportUrl, '_blank');
     successModal.classList.remove('show');
-  }
-});
+    resetForm();
+}
 
-// Event Listeners para botones de descarga del historial
-document.querySelectorAll('.history-item .download-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const historyItem = e.target.closest('.history-item');
-    const title = historyItem.querySelector('.history-title').textContent;
-    console.log(`Descargando: ${title}`);
-  });
-});
+function resetForm() {
+    state.selectedProperties = [];
+    state.selectedContent = [];
+    document.querySelectorAll('.property-item, .content-item .custom-checkbox').forEach(el => {
+        el.classList.remove('selected', 'checked');
+    });
+    updateGenerateButton();
+}
 
-// Inicializar el estado del botón
-updateGenerateButton();
+// Event Listeners
+propertyList.addEventListener('click', e => e.target.closest('.property-item') && toggleProperty(e.target.closest('.property-item')));
+contentOptions.addEventListener('click', e => e.target.closest('.content-item') && toggleContent(e.target.closest('.content-item')));
+generateBtn.addEventListener('click', generateReport);
+backButton.addEventListener('click', () => window.history.back());
+monthSelect.addEventListener('change', e => state.month = parseInt(e.target.value));
+yearSelect.addEventListener('change', e => state.year = parseInt(e.target.value));
+successModal.addEventListener('click', e => e.target === successModal && successModal.classList.remove('show'));
