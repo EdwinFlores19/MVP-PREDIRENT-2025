@@ -1,9 +1,9 @@
 /*
 ================================================================================
-    SCRIPT DE CREACIÓN DE BASE DE DATOS PARA PREDIRENT
+    SCRIPT DE CREACIÓN DE BASE DE DATOS PARA PREDIRENT (ACTUALIZADO)
     SGBD: SQL Server
     AUTOR: (Análisis de Experto)
-    FECHA: 25 de octubre de 2025
+    FECHA: 27 de octubre de 2025 (Refleja cambios solicitados)
 ================================================================================
     NOTAS DE DISEÑO:
     1.  NOMENCLATURA: Se utiliza PascalCase para tablas y columnas.
@@ -75,34 +75,40 @@ GO
 
 
 -- ============================================================================
--- SECCIÓN 2: GESTIÓN DE PROPIEDADES (Núcleo del sistema)
+-- SECCIÓN 2: GESTIÓN DE PROPIEDADES (Núcleo del sistema) - ACTUALIZADO
 -- ============================================================================
 
--- Tabla principal de propiedades
+-- Tabla principal de propiedades (CON CAMBIOS INCORPORADOS)
 CREATE TABLE dbo.Propiedades (
     PropiedadID INT IDENTITY(1,1) NOT NULL,
     UsuarioID INT NOT NULL,
     Titulo NVARCHAR(255) NOT NULL,
     Descripcion NVARCHAR(MAX) NULL,
-    TipoPropiedad NVARCHAR(50) NOT NULL, -- 'casa', 'departamento', 'oficina', 'estudio'
+    TipoPropiedad NVARCHAR(50) NOT NULL, -- Ej: 'Casa', 'Departamento', 'Oficina', 'Estudio', 'Cabaña', etc.
     TipoAlojamiento NVARCHAR(50) NOT NULL, -- 'entire', 'room', 'shared'
-    Metraje DECIMAL(8, 2) NOT NULL,
+    Metraje DECIMAL(8, 2) NULL, -- CAMBIO: Ahora permite NULL
     NumHabitaciones INT NOT NULL CONSTRAINT DF_Propiedades_NumHabitaciones DEFAULT 1,
     NumBanos INT NOT NULL CONSTRAINT DF_Propiedades_NumBanos DEFAULT 1,
+    NumHuespedes INT NULL, -- NUEVA COLUMNA
+    NumCamas INT NULL, -- NUEVA COLUMNA
     Distrito NVARCHAR(100) NOT NULL,
-    DireccionCompleta NVARCHAR(512) NOT NULL,
+    Provincia NVARCHAR(100) NULL, -- NUEVA COLUMNA (Para 'Departamento/estado/provincia/región')
+    DireccionCompleta NVARCHAR(512) NOT NULL, -- Incluye Calle, Número, Depto, etc.
     CodigoPostal NVARCHAR(10) NULL,
+    MostrarUbicacionExacta BIT NULL CONSTRAINT DF_Propiedades_MostrarUbicacionExacta DEFAULT 0, -- NUEVA COLUMNA
     PrecioSugerido DECIMAL(10, 2) NULL, -- Precio calculado por el estimador
     PrecioPublicado DECIMAL(10, 2) NULL, -- Precio que el usuario decide
     FechaRegistro DATETIME2(3) NOT NULL CONSTRAINT DF_Propiedades_FechaRegistro DEFAULT GETDATE(),
     EstadoPropiedad NVARCHAR(20) NOT NULL CONSTRAINT DF_Propiedades_EstadoPropiedad DEFAULT 'EnRevision', -- 'EnRevision', 'Activa', 'Inactiva', 'Alquilada'
-    
+
     CONSTRAINT PK_Propiedades PRIMARY KEY CLUSTERED (PropiedadID),
     CONSTRAINT FK_Propiedades_UsuarioID FOREIGN KEY (UsuarioID)
         REFERENCES dbo.Usuarios(UsuarioID) ON DELETE NO ACTION, -- No borrar usuario si tiene propiedades
-    CONSTRAINT CK_Propiedades_Metraje CHECK (Metraje > 0),
+    CONSTRAINT CK_Propiedades_Metraje CHECK (Metraje IS NULL OR Metraje > 0), -- CAMBIO: Modificado para permitir NULL
     CONSTRAINT CK_Propiedades_NumHabitaciones CHECK (NumHabitaciones >= 0),
-    CONSTRAINT CK_Propiedades_NumBanos CHECK (NumBanos >= 1)
+    CONSTRAINT CK_Propiedades_NumBanos CHECK (NumBanos >= 1),
+    CONSTRAINT CK_Propiedades_NumHuespedes CHECK (NumHuespedes IS NULL OR NumHuespedes >= 1), -- Constraint para nueva columna
+    CONSTRAINT CK_Propiedades_NumCamas CHECK (NumCamas IS NULL OR NumCamas >= 1) -- Constraint para nueva columna
 );
 GO
 
@@ -110,12 +116,14 @@ GO
 CREATE NONCLUSTERED INDEX IX_Propiedades_UsuarioID ON dbo.Propiedades(UsuarioID);
 CREATE NONCLUSTERED INDEX IX_Propiedades_Distrito ON dbo.Propiedades(Distrito);
 CREATE NONCLUSTERED INDEX IX_Propiedades_TipoPropiedad ON dbo.Propiedades(TipoPropiedad);
+-- NUEVOS ÍNDICES
+CREATE NONCLUSTERED INDEX IX_Propiedades_Provincia ON dbo.Propiedades(Provincia) WHERE Provincia IS NOT NULL;
+CREATE NONCLUSTERED INDEX IX_Propiedades_NumHuespedes ON dbo.Propiedades(NumHuespedes) WHERE NumHuespedes IS NOT NULL;
 GO
-
 
 -- --- Tablas Maestras (Lookup) para atributos de Propiedad ---
 
--- Tabla de Comodidades (Amenities)
+-- Tabla de Comodidades (Amenities) - Asegúrate de añadir las nuevas de las imágenes
 CREATE TABLE dbo.Comodidades (
     ComodidadID INT IDENTITY(1,1) NOT NULL,
     Nombre NVARCHAR(100) NOT NULL,
@@ -125,7 +133,7 @@ CREATE TABLE dbo.Comodidades (
 );
 GO
 
--- Tabla de Destacados (Highlights)
+-- Tabla de Destacados (Highlights) - Asegúrate de añadir las nuevas de las imágenes
 CREATE TABLE dbo.Destacados (
     DestacadoID INT IDENTITY(1,1) NOT NULL,
     Nombre NVARCHAR(100) NOT NULL,
@@ -135,7 +143,7 @@ CREATE TABLE dbo.Destacados (
 );
 GO
 
--- Tabla de Tipos de Seguridad
+-- Tabla de Tipos de Seguridad - Asegúrate de añadir las nuevas de las imágenes
 CREATE TABLE dbo.SeguridadTipos (
     SeguridadTipoID INT IDENTITY(1,1) NOT NULL,
     Nombre NVARCHAR(100) NOT NULL,
@@ -145,7 +153,7 @@ CREATE TABLE dbo.SeguridadTipos (
 );
 GO
 
--- Tabla de Aspectos (Aspects)
+-- Tabla de Aspectos (Aspects) - Asegúrate de añadir las nuevas de las imágenes
 CREATE TABLE dbo.Aspectos (
     AspectoID INT IDENTITY(1,1) NOT NULL,
     Nombre NVARCHAR(100) NOT NULL,
@@ -375,7 +383,7 @@ CREATE TABLE dbo.AlertasMercado (
     Descripcion NVARCHAR(1000) NOT NULL,
     FechaInicio DATE NOT NULL,
     FechaFin DATE NOT NULL,
-    
+
     CONSTRAINT PK_AlertasMercado PRIMARY KEY CLUSTERED (AlertaMercadoID),
     CONSTRAINT CK_AlertasMercado_Fechas CHECK (FechaFin >= FechaInicio)
 );
@@ -400,39 +408,72 @@ CREATE TABLE dbo.PreciosMercado (
 GO
 
 -- ============================================================================
--- SECCIÓN 6: POBLADO DE DATOS MAESTROS INICIALES
+-- SECCIÓN 6: TIPOS PERSONALIZADOS (User-Defined Types) - NUEVO
 -- ============================================================================
 
--- Insertar comodidades básicas
+-- Crear User-Defined Table Type para TVP (usado para inserciones múltiples)
+IF TYPE_ID(N'dbo.StringList') IS NULL
+BEGIN
+    EXEC('CREATE TYPE dbo.StringList AS TABLE (Nombre NVARCHAR(100))');
+END
+GO
+
+
+-- ============================================================================
+-- SECCIÓN 7: POBLADO DE DATOS MAESTROS INICIALES - ACTUALIZADO
+-- ============================================================================
+-- Es crucial añadir aquí TODAS las opciones nuevas de las imágenes
+
+-- Insertar comodidades básicas Y NUEVAS
+-- (Añadir aquí: 'TV', 'Cocina', 'Lavadora', 'Estacionamiento gratuito', 'Estacionamiento de pago', 'Zona de trabajo')
 INSERT INTO dbo.Comodidades (Nombre) VALUES
-('WiFi'), ('Estacionamiento'), ('Aire Acondicionado'), ('Amoblado'), 
-('Cocina Equipada'), ('Lavadora'), ('Televisor'), ('Gimnasio');
+('WiFi'), ('Estacionamiento'), ('Aire Acondicionado'), ('Amoblado'),
+('Cocina Equipada'), ('Lavadora'), ('Televisor'), ('Gimnasio'),
+-- NUEVAS de imagen 2:
+('TV'), ('Cocina'), ('Estacionamiento gratuito'), ('Estacionamiento de pago'), ('Zona de trabajo')
+ON CONFLICT (Nombre) DO NOTHING; -- Opcional: Evita error si ya existen
 GO
 
--- Insertar destacados básicos
+-- Insertar destacados básicos Y NUEVOS
+-- (Añadir aquí: 'Jacuzzi', 'Parrilla', 'Zona de comida al aire libre', 'Lugar para hacer fogata', 'Mesa de billar', 'Chimenea interior', 'Piano', 'Equipo para hacer ejercicio', 'Acceso al lago', 'Acceso a la playa', 'Acceso a pistas de esquí', 'Ducha exterior')
 INSERT INTO dbo.Destacados (Nombre) VALUES
-('Vistas Panorámicas'), ('Piscina'), ('Jardín'), ('Terraza');
+('Vistas Panorámicas'), ('Piscina'), ('Jardín'), ('Terraza'),
+-- NUEVAS de imagen 2:
+('Jacuzzi'), ('Parrilla'), ('Zona de comida al aire libre'), ('Lugar para hacer fogata'),
+('Mesa de billar'), ('Chimenea interior'), ('Piano'), ('Equipo para hacer ejercicio'),
+('Acceso al lago'), ('Acceso a la playa'), ('Acceso a pistas de esquí'), ('Ducha exterior')
+ON CONFLICT (Nombre) DO NOTHING;
 GO
 
--- Insertar tipos de seguridad
+-- Insertar tipos de seguridad Y NUEVOS
+-- (Añadir aquí: 'Detector de humo', 'Botiquín de primeros auxilios', 'Extintor de incendios', 'Detector de monóxido de carbono')
 INSERT INTO dbo.SeguridadTipos (Nombre) VALUES
-('Cerradura Segura'), ('Sistema de Alarma'), ('Cámaras de Seguridad'), ('Vigilancia 24/7');
+('Cerradura Segura'), ('Sistema de Alarma'), ('Cámaras de Seguridad'), ('Vigilancia 24/7'),
+-- NUEVAS de imagen 2:
+('Detector de humo'), ('Botiquín de primeros auxilios'), ('Extintor de incendios'), ('Detector de monóxido de carbono')
+ON CONFLICT (Nombre) DO NOTHING;
 GO
 
--- Insertar aspectos
+-- Insertar aspectos Y NUEVOS
+-- (Añadir aquí: 'Tranquilo', 'Excepcional', 'Ideal para familias', 'Elegante', 'Central')
 INSERT INTO dbo.Aspectos (Nombre) VALUES
-('Tamaño Espacioso'), ('Mucha Luz Natural'), ('Zona Tranquila'), ('Ubicación Céntrica');
+('Tamaño Espacioso'), ('Mucha Luz Natural'), ('Zona Tranquila'), ('Ubicación Céntrica'),
+-- NUEVAS de imagen 3:
+('Tranquilo'), ('Excepcional'), ('Ideal para familias'), ('Elegante'), ('Central')
+ON CONFLICT (Nombre) DO NOTHING;
 GO
 
--- Insertar intereses de comunidad
+-- Insertar intereses de comunidad (sin cambios)
 INSERT INTO dbo.Intereses (Nombre, Icono) VALUES
 ('Mantenimiento', '🔧'), ('Legal', '⚖️'), ('Optimización', '📊'),
-('Marketing', '📱'), ('Finanzas', '💰'), ('Seguridad', '🔒');
+('Marketing', '📱'), ('Finanzas', '💰'), ('Seguridad', '🔒')
+ON CONFLICT (Nombre) DO NOTHING;
 GO
 
--- Insertar tipos de contenido de reporte
+-- Insertar tipos de contenido de reporte (sin cambios)
 INSERT INTO dbo.ReporteTiposContenido (Nombre) VALUES
-('Resumen Financiero'), ('Estado de Ocupación'), ('Actualizaciones de Regulaciones'), ('Historial de Mantenimiento');
+('Resumen Financiero'), ('Estado de Ocupación'), ('Actualizaciones de Regulaciones'), ('Historial de Mantenimiento')
+ON CONFLICT (Nombre) DO NOTHING;
 GO
 
-PRINT 'Esquema de PrediRentDB creado exitosamente.';
+PRINT 'Esquema de PrediRentDB actualizado y datos maestros poblados exitosamente.';
